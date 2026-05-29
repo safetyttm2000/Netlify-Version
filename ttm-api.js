@@ -3,7 +3,7 @@
 // ✅ แก้เพียงบรรทัดเดียวคือ GAS_API_URL แล้วใช้งานได้เลย
 // ============================================================
 
-const GAS_API_URL = 'https://script.google.com/macros/s/XXXXXXXX/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbz4RL-uUpF1M7eZfEM9lfUdHb0JqdScfcHlsbKVMm9xr2xrllYezi55jkmTEA2EZIfQfw/exec';
 //                                                        ↑↑↑↑↑↑↑↑
 //  วาง Deployment ID ของคุณที่นี่  (ได้จาก GAS → Deploy → Web App URL)
 
