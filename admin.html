@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TTM Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<style>
+:root{--red:#C0392B;--dred:#922B21;--gold:#D4AC0D;
+  --bg:#0D1117;--sb:#161B22;--card:#21262D;--bdr:#30363D;--tx:#E6EDF3;--mt:#8B949E;--hv:#1C2128;}
+*{font-family:'Sarabun',sans-serif;box-sizing:border-box;}
+body{background:var(--bg);color:var(--tx);margin:0;min-height:100vh;}
+/* Sidebar */
+.sb{position:fixed;top:0;left:0;width:250px;height:100vh;background:var(--sb);
+  border-right:1px solid var(--bdr);display:flex;flex-direction:column;z-index:100;transition:transform .3s;}
+.sb-logo{padding:18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:10px;}
+.sb-logo img{height:38px;}
+.sb-logo-t{font-size:12px;font-weight:700;line-height:1.3;}
+.sb-logo-s{font-size:11px;color:var(--mt);}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto;}
+.nav-sec{padding:8px 18px 4px;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mt);font-weight:700;}
+.nav-i{display:flex;align-items:center;gap:10px;padding:10px 18px;color:var(--mt);font-size:14px;
+  cursor:pointer;transition:all .2s;border-left:3px solid transparent;margin:1px 0;}
+.nav-i:hover{background:var(--hv);color:var(--tx);border-left-color:var(--bdr);}
+.nav-i.active{background:rgba(192,57,43,.15);color:#ff6b5b;border-left-color:var(--red);}
+.nav-i i{width:16px;text-align:center;}
+.sb-foot{padding:14px 18px;border-top:1px solid var(--bdr);font-size:13px;color:var(--mt);}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--red),#8B0000);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;}
+/* Main */
+.main{margin-left:250px;min-height:100vh;}
+.topbar{background:var(--sb);border-bottom:1px solid var(--bdr);padding:13px 22px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:90;}
+.topbar-t{font-size:17px;font-weight:700;}
+.topbar-r{display:flex;align-items:center;gap:10px;}
+.lb{background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:7px;
+  color:var(--mt);font-size:12px;font-weight:600;padding:5px 11px;cursor:pointer;
+  transition:all .2s;font-family:'Sarabun',sans-serif;}
+.lb.active{background:var(--red);border-color:var(--red);color:#fff;}
+.btn-lo{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
+  border-radius:7px;color:#ff6b5b;font-size:13px;padding:6px 13px;cursor:pointer;
+  transition:all .2s;font-family:'Sarabun',sans-serif;}
+.btn-lo:hover{background:rgba(192,57,43,.3);}
+.ham{display:none;background:none;border:none;color:var(--tx);font-size:19px;cursor:pointer;}
+.content{padding:22px;}
+/* Stat cards */
+.stat-c{background:var(--card);border:1px solid var(--bdr);border-radius:11px;
+  padding:18px;transition:all .3s;}
+.stat-c:hover{border-color:var(--red);transform:translateY(-2px);}
+.stat-n{font-size:30px;font-weight:800;line-height:1;}
+.stat-l{color:var(--mt);font-size:13px;margin-top:5px;}
+/* Panel */
+.panel{background:var(--card);border:1px solid var(--bdr);border-radius:11px;
+  overflow:hidden;margin-bottom:22px;}
+.ph{padding:14px 18px;border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;}
+.pt{font-size:14px;font-weight:700;}
+.pb{padding:18px;}
+/* Form dark */
+.fd,.sd{background:var(--bg);border:1px solid var(--bdr);border-radius:8px;
+  color:var(--tx);padding:10px 13px;font-size:14px;width:100%;
+  transition:all .2s;font-family:'Sarabun',sans-serif;}
+.fd:focus,.sd:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(192,57,43,.2);}
+.fd::placeholder{color:var(--mt);}
+textarea.fd{resize:vertical;min-height:75px;}
+.lbl-d{color:var(--mt);font-size:13px;font-weight:500;margin-bottom:5px;display:block;}
+/* Buttons */
+.btn-p{background:linear-gradient(135deg,var(--red),var(--dred));border:none;
+  border-radius:8px;color:#fff;font-size:13px;font-weight:600;
+  padding:8px 16px;cursor:pointer;transition:all .2s;font-family:'Sarabun',sans-serif;}
+.btn-p:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(192,57,43,.4);}
+.btn-s{background:rgba(255,255,255,.06);border:1px solid var(--bdr);
+  border-radius:8px;color:var(--tx);font-size:13px;padding:8px 16px;
+  cursor:pointer;transition:all .2s;font-family:'Sarabun',sans-serif;}
+.btn-s:hover{background:rgba(255,255,255,.12);}
+.btn-e{background:rgba(13,110,253,.15);border:1px solid rgba(13,110,253,.3);
+  border-radius:6px;color:#6ea8fe;font-size:12px;padding:4px 9px;cursor:pointer;transition:all .2s;font-family:'Sarabun',sans-serif;}
+.btn-e:hover{background:rgba(13,110,253,.3);}
+.btn-d{background:rgba(192,57,43,.15);border:1px solid rgba(192,57,43,.3);
+  border-radius:6px;color:#ff6b5b;font-size:12px;padding:4px 9px;cursor:pointer;transition:all .2s;font-family:'Sarabun',sans-serif;}
+.btn-d:hover{background:rgba(192,57,43,.3);}
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.tbl th{background:var(--bg);color:var(--mt);font-weight:600;padding:9px 13px;
+  text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;}
+.tbl td{padding:9px 13px;border-bottom:1px solid rgba(48,54,61,.5);vertical-align:middle;}
+.tbl tr:hover td{background:var(--hv);}
+.tbl tr:last-child td{border-bottom:none;}
+/* Badge */
+.bp{background:rgba(25,135,84,.2);color:#75b798;border:1px solid rgba(25,135,84,.3);
+  border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;}
+.bf{background:rgba(192,57,43,.2);color:#ff6b5b;border:1px solid rgba(192,57,43,.3);
+  border-radius:5px;padding:2px 7px;font-size:11px;font-weight:700;}
+.ba{background:rgba(212,172,13,.2);color:#f7c948;border:1px solid rgba(212,172,13,.3);
+  border-radius:5px;padding:2px 7px;font-size:11px;}
+.bu{background:rgba(13,110,253,.15);color:#6ea8fe;border:1px solid rgba(13,110,253,.3);
+  border-radius:5px;padding:2px 7px;font-size:11px;}
+/* Option row */
+.orow{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.olbl{width:22px;height:22px;border-radius:5px;background:rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--mt);flex-shrink:0;}
+/* Pages */
+.page{display:none;}.page.active{display:block;}
+/* Toast */
+.tc{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:7px;}
+.toast-i{background:var(--card);border:1px solid var(--bdr);border-radius:9px;padding:13px 16px;
+  font-size:13px;min-width:250px;display:flex;align-items:center;gap:9px;
+  animation:sti .3s ease;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+@keyframes sti{from{opacity:0;transform:translateX(38px)}to{opacity:1;transform:none}}
+.ts{border-left:3px solid #28a745;}
+.te{border-left:3px solid var(--red);}
+/* Overlay */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;}
+@media(max-width:900px){
+  .sb{transform:translateX(-100%);}.sb.open{transform:none;}
+  .ov.show{display:block;}.main{margin-left:0;}.ham{display:block;}
+}
+</style>
+</head>
+<body>
+<div class="ov" id="ov" onclick="closeSB()"></div>
+
+<!-- Sidebar -->
+<div class="sb" id="sb">
+  <div class="sb-logo">
+    <img src="https://ttm-jda.com/themes/default/images/all/logo/pic_logo.png" onerror="this.style.display='none'" alt="TTM">
+    <div><div class="sb-logo-t" id="sb-t">ระบบอบรม TTM</div><div class="sb-logo-s">Admin Panel</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-sec" id="ns1">ภาพรวม</div>
+    <div class="nav-i active" onclick="showPage('dashboard')" id="ni-db"><i class="fas fa-chart-line"></i><span id="nt-db">แดชบอร์ด</span></div>
+    <div class="nav-sec" id="ns2">จัดการ</div>
+    <div class="nav-i" onclick="showPage('questions')" id="ni-q"><i class="fas fa-question-circle"></i><span id="nt-q">จัดการข้อสอบ</span></div>
+    <div class="nav-i" onclick="showPage('videos')" id="ni-v"><i class="fab fa-youtube"></i><span id="nt-v">จัดการวิดีโอ</span></div>
+    <div class="nav-i" onclick="showPage('users')" id="ni-u"><i class="fas fa-users"></i><span id="nt-u">จัดการผู้ใช้</span></div>
+    <div class="nav-i" onclick="showPage('settings')" id="ni-s"><i class="fas fa-cog"></i><span id="nt-s">ตั้งค่า</span></div>
+    <div class="nav-sec" id="ns3">รายงาน</div>
+    <div class="nav-i" onclick="showPage('results')" id="ni-r"><i class="fas fa-clipboard-list"></i><span id="nt-r">ผลสอบ</span></div>
+  </nav>
+  <div class="sb-foot">
+    <div style="display:flex;align-items:center;gap:9px;">
+      <div class="avatar" id="av">A</div>
+      <div><div style="font-weight:600;font-size:13px;" id="uName">Admin</div>
+        <div style="font-size:11px;color:var(--mt);" id="uRole">ผู้ดูแลระบบ</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <button class="ham" onclick="openSB()"><i class="fas fa-bars"></i></button>
+      <span class="topbar-t" id="pageTitle">แดชบอร์ด</span>
+    </div>
+    <div class="topbar-r">
+      <button class="lb active" onclick="setLang('th')" id="bTH">🇹🇭 TH</button>
+      <button class="lb" onclick="setLang('en')" id="bEN">🇺🇸 EN</button>
+      <button class="btn-lo" onclick="doLogout()"><i class="fas fa-sign-out-alt me-1"></i><span id="loTxt">ออกจากระบบ</span></button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="stat-c">
+          <div class="stat-n text-danger" id="st-q">—</div>
+          <div class="stat-l" id="sl-q">ข้อสอบทั้งหมด</div>
+        </div></div>
+        <div class="col-6 col-md-3"><div class="stat-c">
+          <div class="stat-n" style="color:var(--gold)" id="st-u">—</div>
+          <div class="stat-l" id="sl-u">ผู้ใช้งาน</div>
+        </div></div>
+        <div class="col-6 col-md-3"><div class="stat-c">
+          <div class="stat-n" style="color:#58a6ff" id="st-v">—</div>
+          <div class="stat-l" id="sl-v">วิดีโอ</div>
+        </div></div>
+        <div class="col-6 col-md-3"><div class="stat-c">
+          <div class="stat-n" style="color:#3fb950" id="st-r">—</div>
+          <div class="stat-l" id="sl-r">ผู้สอบทั้งหมด</div>
+        </div></div>
+      </div>
+      <!-- Pass/Fail summary -->
+      <div class="row g-3 mb-4">
+        <div class="col-6"><div class="stat-c">
+          <div class="stat-n" style="color:#3fb950" id="st-pass">—</div>
+          <div class="stat-l" id="sl-pass">ผ่าน (PASS)</div>
+        </div></div>
+        <div class="col-6"><div class="stat-c">
+          <div class="stat-n" style="color:#ff6b5b" id="st-fail">—</div>
+          <div class="stat-l" id="sl-fail">ไม่ผ่าน (FAIL)</div>
+        </div></div>
+      </div>
+      <div class="panel">
+        <div class="ph"><span class="pt" id="rec-t">ผลสอบล่าสุด</span>
+          <button class="btn-s" onclick="loadDashboard()"><i class="fas fa-sync-alt me-1"></i>Refresh</button>
+        </div>
+        <div class="pb" style="overflow-x:auto;">
+          <table class="tbl"><thead><tr>
+            <th id="rh1">วันที่</th><th id="rh2">ชื่อ</th><th id="rh3">บริษัท</th>
+            <th id="rh4">คะแนน</th><th id="rh5">ผล</th>
+          </tr></thead><tbody id="recBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--mt);padding:24px;">กำลังโหลด...</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUESTIONS -->
+    <div class="page" id="page-questions">
+      <div class="panel">
+        <div class="ph">
+          <span class="pt" id="qt">จัดการข้อสอบ</span>
+          <button class="btn-p" onclick="openQM()"><i class="fas fa-plus me-1"></i><span id="qadd">เพิ่มข้อสอบ</span></button>
+        </div>
+        <div class="pb" style="overflow-x:auto;">
+          <table class="tbl"><thead><tr>
+            <th>#</th><th id="qh1">คำถาม (TH)</th><th id="qh2">คำถาม (EN)</th>
+            <th id="qh3">เฉลย</th><th id="qh4">จัดการ</th>
+          </tr></thead><tbody id="qBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--mt);padding:24px;">กำลังโหลด...</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIDEOS -->
+    <div class="page" id="page-videos">
+      <div class="panel">
+        <div class="ph">
+          <span class="pt" id="vt">จัดการวิดีโอ</span>
+          <button class="btn-p" onclick="openVM()"><i class="fas fa-plus me-1"></i><span id="vadd">เพิ่มวิดีโอ</span></button>
+        </div>
+        <div class="pb" id="vCards">กำลังโหลด...</div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="panel">
+        <div class="ph">
+          <span class="pt" id="ut">จัดการผู้ใช้</span>
+          <button class="btn-p" onclick="openUM()"><i class="fas fa-user-plus me-1"></i><span id="uadd">เพิ่มผู้ใช้</span></button>
+        </div>
+        <div class="pb" style="overflow-x:auto;">
+          <table class="tbl"><thead><tr>
+            <th id="uh1">Username</th><th id="uh2">Password</th>
+            <th id="uh3">สิทธิ์</th><th id="uh4">สถานะ</th><th id="uh5">จัดการ</th>
+          </tr></thead><tbody id="uBody">
+            <tr><td colspan="5" style="text-align:center;color:var(--mt);padding:24px;">กำลังโหลด...</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="panel">
+            <div class="ph"><span class="pt" id="set-t">กำหนดเกณฑ์ผ่าน</span></div>
+            <div class="pb">
+              <label class="lbl-d" id="set-l">คะแนนขั้นต่ำที่ผ่าน (จาก 30 ข้อ)</label>
+              <input type="number" class="fd" id="passScore" min="1" max="30" value="27">
+              <div style="font-size:12px;color:var(--mt);margin-top:5px;" id="set-n">
+                เช่น 27 = ต้องทำถูกอย่างน้อย 27 จาก 30 ข้อ</div>
+              <button class="btn-p mt-3" onclick="savePS()">
+                <i class="fas fa-save me-1"></i><span id="set-save">บันทึก</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="page" id="page-results">
+      <div class="panel">
+        <div class="ph">
+          <span class="pt" id="rest">ผลสอบทั้งหมด</span>
+          <button class="btn-s" onclick="loadResults()"><i class="fas fa-sync-alt me-1"></i><span id="res-ref">รีเฟรช</span></button>
+        </div>
+        <div class="pb" style="overflow-x:auto;">
+          <table class="tbl"><thead><tr>
+            <th id="rth1">วันที่</th><th id="rth2">Username</th><th id="rth3">ชื่อ</th>
+            <th id="rth4">บริษัท</th><th id="rth5">คะแนน</th><th id="rth6">ผล</th>
+          </tr></thead><tbody id="resBody">
+            <tr><td colspan="6" style="text-align:center;color:var(--mt);padding:24px;">กำลังโหลด...</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<div class="tc" id="tc"></div>
+
+<!-- Question Modal -->
+<div class="modal fade" id="qModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content" style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;color:var(--tx);">
+      <div class="modal-header" style="border-color:var(--bdr);">
+        <h5 class="modal-title" id="qmTitle">เพิ่มข้อสอบ</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="qRowIdx">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="lbl-d" id="lqTH">คำถาม (ภาษาไทย) *</label>
+            <textarea class="fd" id="qTH" placeholder="พิมพ์คำถามภาษาไทย..."></textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="lbl-d" id="lqEN">คำถาม (English) *</label>
+            <textarea class="fd" id="qEN" placeholder="Type question in English..."></textarea>
+          </div>
+        </div>
+        <div style="font-size:13px;font-weight:600;color:var(--mt);margin-bottom:10px;" id="lOpts">
+          ตัวเลือก — เลือก ✓ ข้อที่ถูกต้อง</div>
+        <div id="optRows"></div>
+      </div>
+      <div class="modal-footer" style="border-color:var(--bdr);">
+        <button class="btn-s" data-bs-dismiss="modal" id="qmCan">ยกเลิก</button>
+        <button class="btn-p" onclick="saveQ()" id="qmSave"><i class="fas fa-save me-1"></i>บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="vModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;color:var(--tx);">
+      <div class="modal-header" style="border-color:var(--bdr);">
+        <h5 class="modal-title" id="vmTitle">เพิ่มวิดีโอ</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="vRowIdx">
+        <div class="mb-3"><label class="lbl-d">ชื่อวิดีโอ</label><input type="text" class="fd" id="vTitle" placeholder="ชื่อวิดีโอ"></div>
+        <div class="mb-3"><label class="lbl-d">YouTube Embed URL</label>
+          <input type="text" class="fd" id="vUrl" placeholder="https://www.youtube.com/embed/VIDEO_ID">
+          <div style="font-size:12px;color:var(--mt);margin-top:4px;">ใช้ URL embed เช่น https://www.youtube.com/embed/xxxxx</div>
+        </div>
+        <div class="mb-3"><label class="lbl-d">ลำดับ</label><input type="number" class="fd" id="vOrder" value="1" min="1"></div>
+      </div>
+      <div class="modal-footer" style="border-color:var(--bdr);">
+        <button class="btn-s" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn-p" onclick="saveV()"><i class="fas fa-save me-1"></i>บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal fade" id="uModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background:var(--card);border:1px solid var(--bdr);border-radius:14px;color:var(--tx);">
+      <div class="modal-header" style="border-color:var(--bdr);">
+        <h5 class="modal-title" id="umTitle">เพิ่มผู้ใช้</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="uRowIdx">
+        <div class="mb-3"><label class="lbl-d">ชื่อแสดง</label><input type="text" class="fd" id="uDN" placeholder="ชื่อแสดงผล"></div>
+        <div class="mb-3"><label class="lbl-d">Username</label><input type="text" class="fd" id="uUN" placeholder="username"></div>
+        <div class="mb-3"><label class="lbl-d">Password</label>
+          <div style="display:flex;gap:7px;">
+            <input type="text" class="fd" id="uPW" placeholder="รหัสผ่าน" style="flex:1;">
+            <button class="btn-s" onclick="genPW()" style="white-space:nowrap;"><i class="fas fa-random me-1"></i>สุ่ม</button>
+          </div>
+        </div>
+        <div class="row g-2">
+          <div class="col-6"><label class="lbl-d">สิทธิ์</label>
+            <select class="fd sd" id="uRole"><option value="user">User</option><option value="admin">Admin</option></select>
+          </div>
+          <div class="col-6"><label class="lbl-d">สถานะ</label>
+            <select class="fd sd" id="uSt"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="border-color:var(--bdr);">
+        <button class="btn-s" data-bs-dismiss="modal">ยกเลิก</button>
+        <button class="btn-p" onclick="saveU()"><i class="fas fa-save me-1"></i>บันทึก</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="ttm-api.js"></script>
+<script>
+// ============ STATE ============
+let lang='th', curPage='dashboard';
+let allQ=[], allU=[], allV=[];
+let session={};
+
+// ============ i18n ============
+const T={
+  th:{
+    pages:{dashboard:'แดชบอร์ด',questions:'จัดการข้อสอบ',videos:'จัดการวิดีโอ',
+           users:'จัดการผู้ใช้',settings:'ตั้งค่า',results:'ผลสอบ'},
+    PASS:'ผ่าน',FAIL:'ไม่ผ่าน',opts:['ก','ข','ค','ง'],
+    loTxt:'ออกจากระบบ',uRole:'ผู้ดูแลระบบ',noData:'ยังไม่มีข้อมูล',
+    'sl-q':'ข้อสอบทั้งหมด','sl-u':'ผู้ใช้งาน','sl-v':'วิดีโอ','sl-r':'ผู้สอบทั้งหมด',
+    'sl-pass':'ผ่าน (PASS)','sl-fail':'ไม่ผ่าน (FAIL)','rec-t':'ผลสอบล่าสุด',
+    editTxt:'แก้ไข',delTxt:'ลบ',confirmDel:'ยืนยันลบ?'
+  },
+  en:{
+    pages:{dashboard:'Dashboard',questions:'Questions',videos:'Videos',
+           users:'Users',settings:'Settings',results:'Results'},
+    PASS:'PASS',FAIL:'FAIL',opts:['A','B','C','D'],
+    loTxt:'Logout',uRole:'System Administrator',noData:'No records',
+    'sl-q':'Total Questions','sl-u':'Users','sl-v':'Videos','sl-r':'Total Exams',
+    'sl-pass':'Pass (PASS)','sl-fail':'Fail (FAIL)','rec-t':'Recent Results',
+    editTxt:'Edit',delTxt:'Del',confirmDel:'Confirm delete?'
+  }
+};
+
+function setLang(l){
+  lang=l; localStorage.setItem('ttm_lang',l);
+  document.getElementById('bTH').classList.toggle('active',l==='th');
+  document.getElementById('bEN').classList.toggle('active',l==='en');
+  const t=T[l];
+  document.getElementById('loTxt').textContent=t.loTxt;
+  document.getElementById('uRole').textContent=t.uRole;
+  document.getElementById('pageTitle').textContent=t.pages[curPage]||curPage;
+  ['sl-q','sl-u','sl-v','sl-r','sl-pass','sl-fail','rec-t'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.textContent=t[id];
+  });
+  reRender();
+}
+
+// ============ SIDEBAR ============
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-i').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.getElementById('ni-'+{dashboard:'db',questions:'q',videos:'v',users:'u',settings:'s',results:'r'}[p]).classList.add('active');
+  document.getElementById('pageTitle').textContent=T[lang].pages[p]||p;
+  curPage=p; closeSB();
+  if(p==='questions') loadQ();
+  if(p==='videos')    loadV();
+  if(p==='users')     loadU();
+  if(p==='settings')  loadSettings();
+  if(p==='results')   loadResults();
+  if(p==='dashboard') loadDashboard();
+}
+function openSB(){document.getElementById('sb').classList.add('open');document.getElementById('ov').classList.add('show');}
+function closeSB(){document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('show');}
+
+// ============ TOAST ============
+function toast(msg,type='success'){
+  const c=document.getElementById('tc');
+  const el=document.createElement('div');
+  el.className=`toast-i t${type==='error'?'e':'s'}`;
+  el.innerHTML=`<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"
+    style="color:${type==='error'?'#ff6b5b':'#3fb950'}"></i>${msg}`;
+  c.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(38px)';
+    el.style.transition='all .3s';setTimeout(()=>el.remove(),300);},3200);
+}
+
+// ============ LOGOUT ============
+function doLogout(){
+  apiLogout().finally(function(){
+    window.location.href = 'index.html';
+  });
+}
+
+// ============ DASHBOARD ============
+function loadDashboard(){
+  apiGetDashboard().then(function(stats){
+    if(!stats||stats.error) return;
+    document.getElementById('st-q').textContent = stats.questions;
+    document.getElementById('st-u').textContent = stats.users;
+    document.getElementById('st-v').textContent = stats.videos;
+    document.getElementById('st-r').textContent = stats.results;
+    document.getElementById('st-pass').textContent = stats.pass;
+    document.getElementById('st-fail').textContent = stats.fail;
+  });
+  apiGetResults(10).then(function(rs){
+    const tbody=document.getElementById('recBody');
+    if(!rs||!rs.length||rs.error){
+      tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--mt);padding:20px;">${T[lang].noData}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML=rs.slice(0,10).map(r=>`<tr>
+      <td style="white-space:nowrap;font-size:12px;">${r.date}</td>
+      <td>${r.name}</td>
+      <td>${r.company}</td>
+      <td><strong>${r.score}/${r.total}</strong></td>
+      <td><span class="b${r.result==='PASS'?'p':'f'}">${T[lang][r.result]||r.result}</span></td>
+    </tr>`).join('');
+  }).catch(function(e){
+    document.getElementById('recBody').innerHTML=
+      `<tr><td colspan="5" style="color:#ff6b5b;padding:16px;">Error: ${e.message}</td></tr>`;
+  });
+}
+
+// ============ RESULTS ============
+function loadResults(){
+  apiGetResults(200).then(function(rs){
+    const tbody=document.getElementById('resBody');
+    if(!rs||!rs.length||rs.error){
+      tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;color:var(--mt);padding:20px;">${T[lang].noData}</td></tr>`;
+      return;
+    }
+    tbody.innerHTML=rs.map(r=>`<tr>
+      <td style="white-space:nowrap;font-size:12px;">${r.date}</td>
+      <td>${r.username}</td>
+      <td>${r.name}</td>
+      <td>${r.company}</td>
+      <td><strong>${r.score}/${r.total}</strong></td>
+      <td><span class="b${r.result==='PASS'?'p':'f'}">${T[lang][r.result]||r.result}</span></td>
+    </tr>`).join('');
+  }).catch(function(e){
+    document.getElementById('resBody').innerHTML=
+      `<tr><td colspan="6" style="color:#ff6b5b;padding:16px;">Error: ${e.message}</td></tr>`;
+  });
+}
+
+// ============ QUESTIONS ============
+function loadQ(){
+  apiGetQuestions().then(function(qs){ allQ=qs||[]; renderQ(); });
+}
+function renderQ(){
+  const t=T[lang], tbody=document.getElementById('qBody');
+  if(!allQ.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--mt);padding:20px;">${t.noData}</td></tr>`;return;}
+  tbody.innerHTML=allQ.map((q,i)=>`<tr>
+    <td>${i+1}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${q.questionTH}</td>
+    <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--mt)">${q.questionEN}</td>
+    <td><span style="color:var(--gold);font-weight:700">${q.answer}</span></td>
+    <td>
+      <button class="btn-e me-1" onclick="editQ(${q.id})"><i class="fas fa-edit me-1"></i>${t.editTxt}</button>
+      <button class="btn-d" onclick="delQ(${q.rowIndex})"><i class="fas fa-trash me-1"></i>${t.delTxt}</button>
+    </td>
+  </tr>`).join('');
+}
+function buildOptRows(q){
+  const opts=T[lang].opts;
+  return [1,2,3,4].map(n=>`
+    <div class="orow">
+      <div class="olbl">${opts[n-1]}</div>
+      <input type="radio" name="ans" value="${n}" style="accent-color:var(--gold);width:16px;height:16px;flex-shrink:0;cursor:pointer;" ${q&&String(q.answer)===String(n)?'checked':''}>
+      <div style="flex:1;display:flex;gap:7px;">
+        <input type="text" class="fd" id="o${n}TH" placeholder="${opts[n-1]}. ภาษาไทย" style="flex:1;" value="${q?q['opt'+n+'TH']:''}">
+        <input type="text" class="fd" id="o${n}EN" placeholder="${opts[n-1]}. English" style="flex:1;" value="${q?q['opt'+n+'EN']:''}">
+      </div>
+    </div>`).join('');
+}
+function openQM(q){
+  document.getElementById('qRowIdx').value=q?q.rowIndex:'';
+  document.getElementById('qmTitle').textContent=q?(lang==='th'?'แก้ไขข้อสอบ':'Edit Question'):(lang==='th'?'เพิ่มข้อสอบ':'Add Question');
+  document.getElementById('qTH').value=q?q.questionTH:'';
+  document.getElementById('qEN').value=q?q.questionEN:'';
+  document.getElementById('optRows').innerHTML=buildOptRows(q);
+  new bootstrap.Modal(document.getElementById('qModal')).show();
+}
+function editQ(id){openQM(allQ.find(q=>q.id===id));}
+function saveQ(){
+  const ri=document.getElementById('qRowIdx').value;
+  const ans=[...document.querySelectorAll('input[name="ans"]')].find(r=>r.checked)?.value;
+  if(!document.getElementById('qTH').value||!ans){toast(lang==='th'?'กรุณากรอกข้อมูลให้ครบ':'Fill all fields','error');return;}
+  const qObj={
+    questionTH:document.getElementById('qTH').value, questionEN:document.getElementById('qEN').value,
+    opt1TH:document.getElementById('o1TH').value, opt1EN:document.getElementById('o1EN').value,
+    opt2TH:document.getElementById('o2TH').value, opt2EN:document.getElementById('o2EN').value,
+    opt3TH:document.getElementById('o3TH').value, opt3EN:document.getElementById('o3EN').value,
+    opt4TH:document.getElementById('o4TH').value, opt4EN:document.getElementById('o4EN').value,
+    answer:ans
+  };
+  const cb=r=>{if(r&&r.success){toast(lang==='th'?'บันทึกสำเร็จ':'Saved');bootstrap.Modal.getInstance(document.getElementById('qModal')).hide();loadQ();}else toast((r&&r.message)||'Error','error');};
+  if(ri) apiUpdateQuestion(parseInt(ri),qObj).then(cb);
+  else   apiAddQuestion(qObj).then(cb);
+}
+function delQ(ri){
+  if(!confirm(T[lang].confirmDel)) return;
+  apiDeleteQuestion(ri).then(r=>{if(r&&r.success){toast(lang==='th'?'ลบสำเร็จ':'Deleted');loadQ();}else toast((r&&r.message)||'Error','error');});
+}
+
+// ============ VIDEOS ============
+function loadV(){
+  apiGetVideos().then(function(vs){ allV=vs||[]; renderV(); });
+}
+function renderV(){
+  const c=document.getElementById('vCards'), t=T[lang];
+  if(!allV.length){c.innerHTML=`<p style="color:var(--mt);text-align:center;">${t.noData}</p>`;return;}
+  c.innerHTML=allV.map(v=>`
+    <div style="background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:13px 16px;margin-bottom:11px;display:flex;align-items:center;gap:11px;">
+      <i class="fab fa-youtube" style="font-size:22px;color:#ff0000;flex-shrink:0;"></i>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;font-size:14px;">${v.title}</div>
+        <div style="font-size:12px;color:var(--mt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.url}</div>
+      </div>
+      <button class="btn-e me-1" onclick="editV(${v.id})"><i class="fas fa-edit"></i></button>
+      <button class="btn-d" onclick="delV(${v.rowIndex})"><i class="fas fa-trash"></i></button>
+    </div>`).join('');
+}
+function openVM(v){
+  document.getElementById('vRowIdx').value=v?v.rowIndex:'';
+  document.getElementById('vmTitle').textContent=v?(lang==='th'?'แก้ไขวิดีโอ':'Edit Video'):(lang==='th'?'เพิ่มวิดีโอ':'Add Video');
+  document.getElementById('vTitle').value=v?v.title:'';
+  document.getElementById('vUrl').value=v?v.url:'';
+  document.getElementById('vOrder').value=v?v.order:1;
+  new bootstrap.Modal(document.getElementById('vModal')).show();
+}
+function editV(id){openVM(allV.find(v=>v.id===id));}
+function saveV(){
+  const ri=document.getElementById('vRowIdx').value;
+  const title=document.getElementById('vTitle').value, url=document.getElementById('vUrl').value, order=document.getElementById('vOrder').value;
+  if(!title||!url){toast(lang==='th'?'กรุณากรอกให้ครบ':'Fill all fields','error');return;}
+  const cb=r=>{if(r&&r.success){toast(lang==='th'?'บันทึกสำเร็จ':'Saved');bootstrap.Modal.getInstance(document.getElementById('vModal')).hide();loadV();}else toast((r&&r.message)||'Error','error');};
+  if(ri) apiUpdateVideo(parseInt(ri),title,url,order).then(cb);
+  else   apiAddVideo(title,url,order).then(cb);
+}
+function delV(ri){
+  if(!confirm(T[lang].confirmDel)) return;
+  apiDeleteVideo(ri).then(r=>{if(r&&r.success){toast(lang==='th'?'ลบสำเร็จ':'Deleted');loadV();}else toast((r&&r.message)||'Error','error');});
+}
+
+// ============ USERS ============
+function loadU(){
+  apiGetUsers().then(function(us){ allU=us||[]; renderU(); });
+}
+function renderU(){
+  const t=T[lang], tbody=document.getElementById('uBody');
+  if(!allU.length){tbody.innerHTML=`<tr><td colspan="5" style="text-align:center;color:var(--mt);padding:20px;">${t.noData}</td></tr>`;return;}
+  tbody.innerHTML=allU.map((u,i)=>`<tr>
+    <td><strong>${u.username}</strong><br><span style="color:var(--mt);font-size:12px;">${u.displayName||''}</span></td>
+    <td style="font-family:monospace;">${u.password}</td>
+    <td><span class="b${u.role==='admin'?'a':'u'}">${u.role}</span></td>
+    <td><span style="color:${u.status==='active'?'#3fb950':'var(--mt)'};">${u.status}</span></td>
+    <td>
+      <button class="btn-e me-1" onclick="editU(${i})"><i class="fas fa-edit me-1"></i>${t.editTxt}</button>
+      <button class="btn-d" onclick="delU(${u.rowIndex})"><i class="fas fa-trash me-1"></i>${t.delTxt}</button>
+    </td>
+  </tr>`).join('');
+}
+function openUM(u){
+  document.getElementById('uRowIdx').value=u?u.rowIndex:'';
+  document.getElementById('umTitle').textContent=u?(lang==='th'?'แก้ไขผู้ใช้':'Edit User'):(lang==='th'?'เพิ่มผู้ใช้':'Add User');
+  document.getElementById('uDN').value=u?u.displayName||'':'';
+  document.getElementById('uUN').value=u?u.username:'';
+  document.getElementById('uPW').value=u?u.password:'';
+  document.getElementById('uRole').value=u?u.role:'user';
+  document.getElementById('uSt').value=u?u.status:'active';
+  new bootstrap.Modal(document.getElementById('uModal')).show();
+}
+function editU(idx){openUM(allU[idx]);}
+function genPW(){const c='ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';let p='';for(let i=0;i<8;i++)p+=c[Math.floor(Math.random()*c.length)];document.getElementById('uPW').value=p;}
+function saveU(){
+  const ri=document.getElementById('uRowIdx').value;
+  const un=document.getElementById('uUN').value, pw=document.getElementById('uPW').value;
+  const role=document.getElementById('uRole').value, st=document.getElementById('uSt').value, dn=document.getElementById('uDN').value;
+  if(!un||!pw){toast(lang==='th'?'กรุณากรอกให้ครบ':'Fill all fields','error');return;}
+  const cb=r=>{if(r&&r.success){toast(lang==='th'?'บันทึกสำเร็จ':'Saved');bootstrap.Modal.getInstance(document.getElementById('uModal')).hide();loadU();}else toast((r&&r.message)||'Error','error');};
+  if(ri) apiUpdateUser(parseInt(ri),un,pw,role,st,dn).then(cb);
+  else   apiAddUser(un,pw,role,dn).then(cb);
+}
+function delU(ri){
+  if(!confirm(T[lang].confirmDel)) return;
+  apiDeleteUser(ri).then(r=>{if(r&&r.success){toast(lang==='th'?'ลบสำเร็จ':'Deleted');loadU();}else toast((r&&r.message)||'Error','error');});
+}
+
+// ============ SETTINGS ============
+function loadSettings(){
+  apiGetSettings().then(function(s){
+    if(s && s.passing_score) document.getElementById('passScore').value=s.passing_score;
+  });
+}
+function savePS(){
+  const v=parseInt(document.getElementById('passScore').value);
+  if(!v||v<1||v>30){toast(lang==='th'?'กรุณากรอก 1-30':'Enter 1-30','error');return;}
+  apiSaveSetting('passing_score',v).then(r=>{if(r&&r.success)toast(lang==='th'?'บันทึกสำเร็จ':'Saved');else toast((r&&r.message)||'Error','error');});
+}
+
+// ============ RE-RENDER ============
+function reRender(){
+  if(curPage==='questions') renderQ();
+  if(curPage==='videos')    renderV();
+  if(curPage==='users')     renderU();
+}
+
+// ============ INIT ============
+window.addEventListener('load',function(){
+  session = getSession() || {};
+  const name=session.displayName||session.username||'Admin';
+  document.getElementById('uName').textContent=name;
+  document.getElementById('av').textContent=name.charAt(0).toUpperCase();
+  setLang(session.lang||localStorage.getItem('ttm_lang')||'th');
+  loadDashboard();
+});
+</script>
+</body>
+</html>
