@@ -7,11 +7,11 @@
 // ──────────────────────────────────────────────────────────────
 //  ✅ CONFIG
 // ──────────────────────────────────────────────────────────────
-const SPREADSHEET_ID    = '';
-const SLIDE_TEMPLATE_ID = '';
-const PDF_FOLDER_NAME   = 'TTM_AnswerSheets';
+const SPREADSHEET_ID    = '10OowmbWa8bROB-tSqx5vianA_TRAJWvWXd0BHR0vtIM';
+const SLIDE_TEMPLATE_ID = '1vmlxOgrjx4ytTBosXt8-CIDxbYlYHUVOR4NYLbsR70g';
+const PDF_FOLDER_NAME   = 'กระดาษคำตอบ';
 const TOKEN_EXPIRE_MIN  = 120;
-const ALLOWED_ORIGIN    = '*';  // หรือใส่ domain Netlify เช่น 'https://your-site.netlify.app'
+const ALLOWED_ORIGIN    = 'https://ttm-training.netlify.app';  // หรือใส่ domain Netlify เช่น 'https://your-site.netlify.app'
 // ──────────────────────────────────────────────────────────────
 
 const SHEET_USERS     = 'Users';
