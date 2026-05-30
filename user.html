@@ -599,7 +599,8 @@ let wrongIndices   = [];
 let pdfUrlGlobal      = '';
 let pdfBase64Global   = '';
 let pdfFilenameGlobal = 'AnswerSheet.pdf';
-let pdfReadyGlobal    = false;  // ✅ flag ว่า PDF สร้างเสร็จแล้ว
+let pdfFileIdGlobal   = '';     // ✅ Drive File ID สำหรับส่งอีเมล (ไม่ต้องส่ง base64)
+let pdfReadyGlobal    = false;
 let isRetake       = false;
 let score          = 0;
 let passingScore   = 27;
@@ -1087,6 +1088,7 @@ function submitQuiz() {
         if (pdfRes && pdfRes.success && pdfRes.base64) {
           pdfBase64Global   = pdfRes.base64;
           pdfFilenameGlobal = pdfRes.filename || 'AnswerSheet.pdf';
+          pdfFileIdGlobal   = pdfRes.fileId   || '';   // ✅ เก็บ fileId สำหรับส่งอีเมล
           pdfReadyGlobal    = true;
           document.getElementById('pdfSection').style.display = 'block';
           renderPdfSection();
@@ -1327,14 +1329,15 @@ function sendEmail() {
   if (!email || !email.includes('@') || !email.includes('.')) {
     showEmailStatus(t['email-invalid'], 'error'); return;
   }
-  if (!pdfBase64Global && !pdfUrlGlobal) { showEmailStatus('PDF not ready', 'error'); return; }
+  if (!pdfBase64Global && !pdfFileIdGlobal) { showEmailStatus('PDF not ready', 'error'); return; }
 
   const btn = document.getElementById('emailSendBtn');
   btn.disabled = true;
   document.getElementById('email-send-txt').textContent = t['email-sending'];
   showEmailStatus('', '');
 
-  apiSendEmail(email, pdfBase64Global, pdfFilenameGlobal, formData.name||'', score, currentLang).then(function(res) {
+  // ✅ ส่ง fileId แทน base64 — ไม่มีปัญหา URL ยาวเกิน / Failed to fetch
+  apiSendEmail(email, pdfFileIdGlobal, formData.name||'', score, currentLang).then(function(res) {
     btn.disabled = false;
     document.getElementById('email-send-txt').textContent = t['email-send-txt'];
     if (res && res.success) {
