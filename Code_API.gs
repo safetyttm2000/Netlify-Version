@@ -9,7 +9,7 @@
 // ──────────────────────────────────────────────────────────────
 const SPREADSHEET_ID    = '10OowmbWa8bROB-tSqx5vianA_TRAJWvWXd0BHR0vtIM';
 const SLIDE_TEMPLATE_ID = '1vmlxOgrjx4ytTBosXt8-CIDxbYlYHUVOR4NYLbsR70g';
-const PDF_FOLDER_NAME   = 'กระดาษคำตอบ';
+const PDF_FOLDER_NAME   = 'TTM_AnswerSheets';
 const TOKEN_EXPIRE_MIN  = 120;
 const ALLOWED_ORIGIN    = 'https://ttm-training.netlify.app';  // หรือใส่ domain Netlify เช่น 'https://your-site.netlify.app'
 // ──────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ function doGet(e) {
       return _cors(submitQuiz(ud, ans, Number(p.score), Number(p.total), p.lang));
     }
     if (action === 'sendEmail') {
-      return _cors(sendPdfByEmail(p.email, p.driveUrl, p.name, Number(p.score), p.lang));
+      return _cors(sendPdfByEmail(p.email, p.pdfBase64||'', p.filename||'AnswerSheet.pdf', p.name, Number(p.score), p.lang));
     }
 
     // ---- Protected (ต้อง token) ----
@@ -295,70 +295,67 @@ function deleteUser(ri)           {try{SpreadsheetApp.openById(SPREADSHEET_ID).g
 
 function submitQuiz(uObj,answers,score,total,lang) {
   try {
-    const settings=getSettings();
-    const passScore=parseInt(settings['passing_score'])||27;
-    const now=new Date();
-    const day=Utilities.formatDate(now,'Asia/Bangkok','dd');
-    const month=Utilities.formatDate(now,'Asia/Bangkok','MM');
-    const year=Utilities.formatDate(now,'Asia/Bangkok','yyyy');
-    const dateStr=Utilities.formatDate(now,'Asia/Bangkok','dd/MM/yyyy HH:mm:ss');
-    const sh=SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_RESULTS);
-    if(sh.getLastRow()===0){
-      const h=['วันที่','Username','ชื่อ','อายุ','กรุ๊ปเลือด','บ้านเลขที่','หมู่','ถนน','แขวง/ตำบล','เขต/อำเภอ','จังหวัด','รหัสไปรษณีย์','เบอร์โทร','บริษัท','คะแนน','รวม','ผล','ภาษา'];
-      for(let i=1;i<=30;i++) h.push('ข้อ'+i);
+    const settings  = getSettings();
+    const passScore = parseInt(settings['passing_score']) || 27;
+    const now       = new Date();
+    const dateStr   = Utilities.formatDate(now,'Asia/Bangkok','dd/MM/yyyy HH:mm:ss');
+    const day       = Utilities.formatDate(now,'Asia/Bangkok','dd');
+    const month     = Utilities.formatDate(now,'Asia/Bangkok','MM');
+    const year      = Utilities.formatDate(now,'Asia/Bangkok','yyyy');
+
+    // บันทึกลง Google Sheets
+    const sh = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_RESULTS);
+    if (sh.getLastRow() === 0) {
+      const h = ['วันที่','Username','ชื่อ','อายุ','กรุ๊ปเลือด','บ้านเลขที่','หมู่','ถนน',
+        'แขวง/ตำบล','เขต/อำเภอ','จังหวัด','รหัสไปรษณีย์','เบอร์โทร','บริษัท','คะแนน','รวม','ผล','ภาษา'];
+      for (let i=1;i<=30;i++) h.push('ข้อ'+i);
       sh.appendRow(h);
     }
-    const row=[dateStr,uObj.username||'',uObj.name||'',uObj.age||'',uObj.blood||'',
+    const row = [dateStr,uObj.username||'',uObj.name||'',uObj.age||'',uObj.blood||'',
       uObj.noAddress||'',uObj.moo||'',uObj.road||'',uObj.subdistrict||'',
       uObj.district||'',uObj.city||'',uObj.postCode||'',uObj.tel||'',uObj.company||'',
       score,total,score>=passScore?'PASS':'FAIL',lang];
-    for(let i=1;i<=30;i++) row.push(answers['ans'+i]||'-');
+    for (let i=1;i<=30;i++) row.push(answers['ans'+i]||'-');
     sh.appendRow(row);
-    if(score>=passScore){
-      const r=generateAnswerSheetPDF(uObj,answers,score,day,month,year,lang);
-      return{success:true,passed:true,pdfBase64:r.base64,pdfFilename:r.filename,pdfDriveUrl:r.driveUrl,score,passingScore:passScore};
-    }
-    return{success:true,passed:false,score,passingScore:passScore};
-  }catch(e){return{success:false,message:e.message};}
+
+    // ✅ คืนข้อมูลกลับ — PDF จะสร้างฝั่ง browser แทน ไม่ต้องใช้ DriveApp/SlidesApp
+    return {
+      success:      true,
+      passed:       score >= passScore,
+      score:        score,
+      passingScore: passScore,
+      day, month, year,
+      // ส่งข้อมูลทั้งหมดกลับให้ browser สร้าง PDF เอง
+      userData:     uObj,
+      answers:      answers,
+      lang:         lang
+    };
+  } catch(e) { return { success:false, message:e.message }; }
 }
 
-function sendPdfByEmail(email,driveUrl,name,score,lang) {
-  try{
-    if(!email||!email.includes('@')) return{success:false,message:'Invalid email'};
-    const subTH=`กระดาษคำตอบการอบรม TTM — ${name}`;
-    const subEN=`TTM Training Answer Sheet — ${name}`;
-    const bodyTH=`เรียนคุณ ${name}\n\nคะแนน: ${score}/30 — ผ่านการอบรม ✓\n\nดาวน์โหลดกระดาษคำตอบ:\n${driveUrl}\n\nขอบคุณ\nทีม TTM Safety Training`;
-    const bodyEN=`Dear ${name},\n\nScore: ${score}/30 — PASSED ✓\n\nDownload answer sheet:\n${driveUrl}\n\nRegards,\nTTM Safety Training Team`;
-    MailApp.sendEmail({to:email,subject:lang==='en'?subEN:subTH,body:lang==='en'?bodyEN:bodyTH});
-    return{success:true};
-  }catch(e){return{success:false,message:e.message};}
+function sendPdfByEmail(email, pdfBase64, filename, name, score, lang) {
+  try {
+    if (!email || !email.includes('@')) return { success:false, message:'Invalid email' };
+    const subTH = 'กระดาษคำตอบการอบรม TTM — ' + name;
+    const subEN = 'TTM Training Answer Sheet — ' + name;
+    const bodyTH = 'เรียนคุณ ' + name + '\n\nคะแนน: ' + score + '/30 — ผ่านการอบรม ✓\n\nกระดาษคำตอบแนบมากับอีเมลนี้\n\nขอบคุณ\nทีม TTM Safety Training';
+    const bodyEN = 'Dear ' + name + ',\n\nScore: ' + score + '/30 — PASSED ✓\n\nYour answer sheet is attached.\n\nRegards,\nTTM Safety Training Team';
+    // แนบ PDF จาก base64
+    const pdfBlob = Utilities.newBlob(
+      Utilities.base64Decode(pdfBase64), 'application/pdf', filename || 'AnswerSheet.pdf'
+    );
+    MailApp.sendEmail({
+      to: email,
+      subject: lang==='en' ? subEN : subTH,
+      body:    lang==='en' ? bodyEN : bodyTH,
+      attachments: [pdfBlob]
+    });
+    return { success: true };
+  } catch(e) { return { success:false, message:e.message }; }
 }
 
-function _getPdfFolder(){const it=DriveApp.getFoldersByName(PDF_FOLDER_NAME);return it.hasNext()?it.next():DriveApp.createFolder(PDF_FOLDER_NAME);}
-
-function generateAnswerSheetPDF(uObj,answers,score,day,month,year,lang){
-  const labels=lang==='en'?{'1':'A','2':'B','3':'C','4':'D'}:{'1':'ก','2':'ข','3':'ค','4':'ง'};
-  const tmpl=DriveApp.getFileById(SLIDE_TEMPLATE_ID);
-  const folder=_getPdfFolder();
-  const cname='AnswerSheet_'+sanitize(uObj.name||'noname')+'_'+day+month+year;
-  const copy=tmpl.makeCopy(cname,folder);
-  const cid=copy.getId();
-  const pres=SlidesApp.openById(cid);
-  const rep={'{{Date}}':day,'{{Month}}':month,'{{Year}}':year,'{{Name}}':String(uObj.name||''),'{{Age}}':String(uObj.age||''),'{{Blood}}':String(uObj.blood||''),'{{NoAddress}}':String(uObj.noAddress||''),'{{Moo}}':String(uObj.moo||''),'{{Road}}':String(uObj.road||''),'{{Subdistrict}}':String(uObj.subdistrict||''),'{{District}}':String(uObj.district||''),'{{City}}':String(uObj.city||''),'{{PostCode}}':String(uObj.postCode||''),'{{Company}}':String(uObj.company||''),'{{Tel}}':String(uObj.tel||''),'{{TotalScore}}':score+'/30'};
-  for(let i=1;i<=30;i++) rep['{{Ans'+i+'}}']= labels[answers['ans'+i]||'']||'';
-  const rep_=txt=>{let s=txt;Object.keys(rep).forEach(k=>{s=s.split(k).join(rep[k]);});return s;};
-  pres.getSlides().forEach(slide=>{
-    slide.getShapes().forEach(sh=>{try{const tf=sh.getText();const o=tf.asString();const n=rep_(o);if(n!==o)tf.setText(n);}catch(e){}});
-    slide.getTables().forEach(tb=>{for(let r=0;r<tb.getNumRows();r++)for(let c=0;c<tb.getNumColumns();c++){try{const cell=tb.getCell(r,c);const o=cell.getText().asString();const n=rep_(o);if(n!==o)cell.getText().setText(n);}catch(e){}}});
-  });
-  pres.saveAndClose();
-  const blob=DriveApp.getFileById(cid).getAs('application/pdf');
-  blob.setName(cname+'.pdf');
-  const pdfFile=folder.createFile(blob);
-  pdfFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
-  DriveApp.getFileById(cid).setTrashed(true);
-  return{base64:Utilities.base64Encode(blob.getBytes()),filename:cname+'.pdf',driveUrl:pdfFile.getDownloadUrl()};
-}
+// generateAnswerSheetPDF ถูกย้ายไปสร้างฝั่ง browser แทน (ดู user.html)
+// ไม่ต้องใช้ DriveApp/SlidesApp อีกต่อไป → ไม่มีปัญหาสิทธิ์เมื่อเรียกผ่าน fetch()
 
 function getResults(limit){
   try{
