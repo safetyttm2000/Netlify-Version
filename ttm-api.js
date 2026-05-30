@@ -80,9 +80,16 @@ async function apiGeneratePdf(userData, answers, score, day, month, year, lang) 
   return res.json();
 }
 
-// ✅ ส่ง base64 PDF ไปกับอีเมล (GAS แนบไฟล์ให้)
-async function apiSendEmail(email, pdfBase64, filename, name, score, lang) {
-  return gasGet('sendEmail', { email, pdfBase64, filename, name, score, lang });
+// ✅ ส่งอีเมล — GAS ดึง PDF จาก Drive fileId แนบให้เอง (ไม่ต้องส่ง base64 ผ่าน URL)
+async function apiSendEmail(email, fileId, name, score, lang) {
+  const qs = new URLSearchParams({
+    secret: PDF_SECRET,
+    action: 'sendEmail',
+    email, fileId, name, score, lang
+  });
+  const res = await fetch(PDF_GAS_URL + '?' + qs.toString(), { redirect: 'follow' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
 }
 
 // Admin
