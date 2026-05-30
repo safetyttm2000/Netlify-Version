@@ -7,7 +7,7 @@ const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbz4RL-uUpF1M7eZfEM9
 //                                                        ↑↑↑↑↑↑↑↑
 //  วาง Deployment ID ของ Code_API.gs ที่นี่
 
-const PDF_GAS_URL = 'https://script.google.com/macros/s/AKfycbxeAXIHRKCwoCSWSWStQI_KTvaAePeLU2whwnSIutf9qOesGdIRAcDs3owaKFZk5TBc/exec';
+const PDF_GAS_URL = 'https://script.google.com/macros/s/AKfycbxhe9WQmVZaqQMXNQvxeeJ6njTj-BDlFJdh0yQfxB4moOnkGSy810LIHdp3m5S7N52F/exec';
 //                                                        ↑↑↑↑↑↑↑↑
 //  วาง Deployment ID ของ Code_PDF.gs (Project แยก) ที่นี่
 
