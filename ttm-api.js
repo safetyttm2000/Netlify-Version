@@ -3,15 +3,15 @@
 // ✅ แก้เพียงบรรทัดเดียวคือ GAS_API_URL แล้วใช้งานได้เลย
 // ============================================================
 
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbz4RL-uUpF1M7eZfEM9lfUdHb0JqdScfcHlsbKVMm9xr2xrllYezi55jkmTEA2EZIfQfw/exec';
+const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbwJKRKpWFVloXZ1n3CdTulylLOddD5syJZZiI9HdMT6kfMLMaWiOVsZPPyVA4QB5rwW0A/exec';
 //                                                        ↑↑↑↑↑↑↑↑
 //  วาง Deployment ID ของ Code_API.gs ที่นี่
 
-const PDF_GAS_URL = 'https://script.google.com/macros/s/AKfycbxhe9WQmVZaqQMXNQvxeeJ6njTj-BDlFJdh0yQfxB4moOnkGSy810LIHdp3m5S7N52F/exec';
+const PDF_GAS_URL = 'https://script.google.com/macros/s/AKfycbzpZ59V8MLs99upar6nVa7c7BhPIsFSHixFZ_RyFZ16wZG9bTAaNL4AGX5twz9sb4_2/exec';
 //                                                        ↑↑↑↑↑↑↑↑
 //  วาง Deployment ID ของ Code_PDF.gs (Project แยก) ที่นี่
 
-const PDF_SECRET  = 'ttm@2026';
+const PDF_SECRET  = 'ttmv01';
 //  ✅ ต้องตรงกับ PDF_SECRET ใน Code_PDF.gs
 
 // ============================================================
@@ -75,14 +75,70 @@ async function apiGeneratePdf(userData, answers, score, day, month, year, lang) 
     answers:  JSON.stringify(answers),
     score, day, month, year, lang
   });
-  const res = await fetch(PDF_GAS_URL + '?' + qs.toString(), { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+  // ✅ timeout 90 วินาที — Slides + Drive ใช้เวลานาน
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 90000);
+  try {
+    const res = await fetch(PDF_GAS_URL + '?' + qs.toString(),
+      { redirect: 'follow', signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('Timeout: GAS ใช้เวลานานเกิน 90 วินาที');
+    throw e;
+  }
 }
 
-// ✅ ส่ง base64 PDF ไปกับอีเมล (GAS แนบไฟล์ให้)
-async function apiSendEmail(email, pdfBase64, filename, name, score, lang) {
-  return gasGet('sendEmail', { email, pdfBase64, filename, name, score, lang });
+// ✅ ส่งอีเมล — GAS ดึง PDF จาก Drive fileId แนบให้เอง (ไม่ต้องส่ง base64 ผ่าน URL)
+async function apiSendEmail(email, fileId, name, score, lang) {
+  const qs = new URLSearchParams({
+    secret: PDF_SECRET,
+    action: 'sendEmail',
+    email, fileId, name, score, lang
+  });
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 60000);
+  try {
+    const res = await fetch(PDF_GAS_URL + '?' + qs.toString(),
+      { redirect: 'follow', signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('Timeout: ส่งอีเมลนานเกินไป');
+    throw e;
+  }
+}
+
+// ✅ ส่งอีเมลด้วย base64 (fallback เมื่อไม่มี fileId — ผ่าน Code_API.gs)
+async function apiSendEmailBase64(email, pdfBase64, filename, name, score, lang) {
+  // แบ่ง base64 เป็นก้อนๆ เพื่อหลีกเลี่ยง URL ยาวเกิน
+  // ส่งผ่าน Code_API.gs ซึ่งรับ JSON POST
+  const url  = GAS_API_URL;
+  const body = JSON.stringify({
+    action: 'sendEmailBase64',
+    email, pdfBase64, filename, name, score, lang,
+    token: (function(){ try{ return JSON.parse(sessionStorage.getItem('ttm_session')||'{}').token||''; }catch(_){ return ''; } })()
+  });
+  const ctrl = new AbortController();
+  const tid  = setTimeout(() => ctrl.abort(), 60000);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body, redirect: 'follow', signal: ctrl.signal
+    });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return res.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('Timeout');
+    throw e;
+  }
 }
 
 // Admin
