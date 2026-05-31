@@ -62,6 +62,10 @@ function doGet(e) {
     if (action === 'sendEmail') {
       return _cors(sendPdfByEmail(p.email, p.pdfBase64||'', p.filename||'AnswerSheet.pdf', p.name, Number(p.score), p.lang));
     }
+    if (action === 'sendEmailBase64') {
+      // fallback: รับ base64 PDF จาก browser แล้วส่งอีเมลแนบไฟล์
+      return _cors(sendPdfByEmail(p.email, p.pdfBase64||'', p.filename||'AnswerSheet.pdf', p.name, Number(p.score), p.lang));
+    }
 
     // ---- Protected (ต้อง token) ----
     const chk = validateToken(token);
