@@ -599,8 +599,7 @@ let wrongIndices   = [];
 let pdfUrlGlobal      = '';
 let pdfBase64Global   = '';
 let pdfFilenameGlobal = 'AnswerSheet.pdf';
-let pdfFileIdGlobal   = '';     // ✅ Drive File ID สำหรับส่งอีเมล (ไม่ต้องส่ง base64)
-let pdfReadyGlobal    = false;
+let pdfReadyGlobal    = false;  // ✅ flag ว่า PDF สร้างเสร็จแล้ว
 let isRetake       = false;
 let score          = 0;
 let passingScore   = 27;
@@ -1072,64 +1071,50 @@ function submitQuiz() {
         return;
       }
 
-      // ✅ สร้าง PDF จาก Google Slides Template (Code_PDF.gs)
-      document.getElementById('loadingPdf').style.display = 'block';
+      // ✅ เรียก GAS PDF Project แยก → สร้าง PDF จาก Google Slides Template จริงๆ
       document.getElementById('loadingPdf').innerHTML =
         '<span class="spinner-border spinner-border-sm me-2"></span>' +
-        (currentLang === 'th'
-          ? 'กำลังสร้างกระดาษคำตอบจาก Template... (อาจใช้เวลา 20-30 วินาที)'
-          : 'Generating PDF from Slides template... (may take 20-30 sec)');
+        (currentLang === 'th' ? 'กำลังสร้างกระดาษคำตอบจาก Template...' : 'Generating PDF from template...');
 
-      // ✅ ตรวจ PDF_GAS_URL ก่อนเรียก
-      if (typeof PDF_GAS_URL === 'undefined' ||
-          PDF_GAS_URL.includes('YYYYYYYY') ||
-          PDF_GAS_URL.trim() === '') {
-        _useFallbackPdf(res, ansMap, score,
-          currentLang === 'th'
-            ? 'ยังไม่ได้ตั้งค่า PDF_GAS_URL ใน ttm-api.js'
-            : 'PDF_GAS_URL not configured in ttm-api.js');
-      } else {
-        apiGeneratePdf(
-          res.userData || formData,
-          res.answers  || ansMap,
-          score,
-          res.day, res.month, res.year,
-          currentLang
-        ).then(function(pdfRes) {
-          document.getElementById('loadingPdf').style.display = 'none';
-
-          // แสดง error จาก GAS ออกมาตรงๆ (ไม่ fallback เงียบๆ)
-          if (pdfRes && pdfRes.error === 'forbidden') {
-            _useFallbackPdf(res, ansMap, score,
-              currentLang === 'th'
-                ? 'PDF_SECRET ไม่ตรงกัน — ตรวจสอบ PDF_SECRET ใน ttm-api.js และ Code_PDF.gs'
-                : 'PDF_SECRET mismatch — check PDF_SECRET in ttm-api.js and Code_PDF.gs');
-            return;
-          }
-          if (pdfRes && pdfRes.error) {
-            _useFallbackPdf(res, ansMap, score, 'GAS Error: ' + pdfRes.error);
-            return;
-          }
-          if (pdfRes && pdfRes.success && pdfRes.base64) {
-            // ✅ สำเร็จ — ใช้ Slides template จริง
-            pdfBase64Global   = pdfRes.base64;
-            pdfFilenameGlobal = pdfRes.filename || 'AnswerSheet.pdf';
-            pdfFileIdGlobal   = pdfRes.fileId   || '';
-            pdfReadyGlobal    = true;
-            document.getElementById('pdfSection').style.display = 'block';
-            renderPdfSection();
-            showToast(currentLang === 'th'
-              ? '✅ กระดาษคำตอบสร้างจาก Template เรียบร้อยแล้ว'
-              : '✅ Answer sheet generated from your template', 'success');
-          } else {
-            _useFallbackPdf(res, ansMap, score,
-              'Unexpected response: ' + JSON.stringify(pdfRes).substring(0, 100));
-          }
-        }).catch(function(err) {
-          document.getElementById('loadingPdf').style.display = 'none';
-          _useFallbackPdf(res, ansMap, score, 'Network: ' + (err.message || 'fetch failed'));
-        });
-      }
+      apiGeneratePdf(
+        res.userData || formData,
+        res.answers  || ansMap,
+        score,
+        res.day, res.month, res.year,
+        currentLang
+      ).then(function(pdfRes) {
+        document.getElementById('loadingPdf').style.display = 'none';
+        if (pdfRes && pdfRes.success && pdfRes.base64) {
+          pdfBase64Global   = pdfRes.base64;
+          pdfFilenameGlobal = pdfRes.filename || 'AnswerSheet.pdf';
+          pdfReadyGlobal    = true;
+          document.getElementById('pdfSection').style.display = 'block';
+          renderPdfSection();
+        } else {
+          // Fallback → สร้างด้วย jsPDF ถ้า Slides template ล้มเหลว
+          console.warn('Slides PDF failed, falling back to jsPDF:', pdfRes && pdfRes.error);
+          const fb = buildPdfInBrowser(res, ansMap, score, currentLang);
+          pdfBase64Global   = fb.base64;
+          pdfFilenameGlobal = fb.filename;
+          pdfReadyGlobal    = true;
+          document.getElementById('pdfSection').style.display = 'block';
+          renderPdfSection();
+          showToast(currentLang === 'th'
+            ? 'ใช้ PDF แบบสำรอง (Template ไม่พร้อม)'
+            : 'Using fallback PDF (template unavailable)', 'error');
+        }
+      }).catch(function(err) {
+        // Network error → Fallback jsPDF
+        console.warn('PDF API error, falling back:', err.message);
+        document.getElementById('loadingPdf').style.display = 'none';
+        const fb = buildPdfInBrowser(res, ansMap, score, currentLang);
+        pdfBase64Global   = fb.base64;
+        pdfFilenameGlobal = fb.filename;
+        pdfReadyGlobal    = true;
+        document.getElementById('pdfSection').style.display = 'block';
+        renderPdfSection();
+        showToast(currentLang === 'th' ? 'ใช้ PDF แบบสำรอง' : 'Using fallback PDF', 'error');
+      });
 
     }).catch(function(err) {
       document.getElementById('loadingPdf').textContent =
@@ -1180,28 +1165,6 @@ function showToast(msg, type='success') {
     t.style.transition='all .3s';
     setTimeout(() => t.remove(), 300);
   }, 3500);
-}
-
-// ================================================================
-// FALLBACK PDF — ใช้ jsPDF เมื่อ Slides template ไม่พร้อม
-// แสดง reason ออกหน้าจอให้ผู้ดูแลระบบแก้ไขได้
-// ================================================================
-function _useFallbackPdf(serverRes, ansMap, score, reason) {
-  console.warn('[TTM PDF] Using fallback jsPDF. Reason:', reason);
-  // แสดง reason ใน toast (เห็นได้โดยไม่ต้องเปิด Console)
-  showToast('⚠️ ' + reason, 'error');
-  try {
-    const fb = buildPdfInBrowser(serverRes, ansMap, score, currentLang);
-    pdfBase64Global   = fb.base64;
-    pdfFilenameGlobal = fb.filename;
-    pdfFileIdGlobal   = '';       // ไม่มี fileId → ส่งอีเมลด้วย base64 แทน
-    pdfReadyGlobal    = true;
-    document.getElementById('loadingPdf').style.display = 'none';
-    document.getElementById('pdfSection').style.display = 'block';
-    renderPdfSection();
-  } catch(e) {
-    document.getElementById('loadingPdf').textContent = 'สร้าง PDF ไม่สำเร็จ: ' + e.message;
-  }
 }
 
 // ================================================================
@@ -1364,19 +1327,14 @@ function sendEmail() {
   if (!email || !email.includes('@') || !email.includes('.')) {
     showEmailStatus(t['email-invalid'], 'error'); return;
   }
-  if (!pdfBase64Global && !pdfFileIdGlobal) { showEmailStatus('PDF not ready', 'error'); return; }
+  if (!pdfBase64Global && !pdfUrlGlobal) { showEmailStatus('PDF not ready', 'error'); return; }
 
   const btn = document.getElementById('emailSendBtn');
   btn.disabled = true;
   document.getElementById('email-send-txt').textContent = t['email-sending'];
   showEmailStatus('', '');
 
-  // ✅ ถ้ามี fileId → ส่งผ่าน Code_PDF.gs (แนบ PDF จาก Drive)
-  //    ถ้าไม่มี fileId (fallback jsPDF) → ส่งผ่าน Code_API.gs (แนบ base64)
-  const emailPromise = pdfFileIdGlobal
-    ? apiSendEmail(email, pdfFileIdGlobal, formData.name||'', score, currentLang)
-    : apiSendEmailBase64(email, pdfBase64Global, pdfFilenameGlobal, formData.name||'', score, currentLang);
-  emailPromise.then(function(res) {
+  apiSendEmail(email, pdfBase64Global, pdfFilenameGlobal, formData.name||'', score, currentLang).then(function(res) {
     btn.disabled = false;
     document.getElementById('email-send-txt').textContent = t['email-send-txt'];
     if (res && res.success) {
