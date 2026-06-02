@@ -1,101 +1,85 @@
-// ============================================================
-// TTM Training System — ttm-api.js  (Netlify version)
-// ✅ แก้เพียงบรรทัดเดียวคือ GAS_API_URL แล้วใช้งานได้เลย
-// ============================================================
+// ================================================================
+// TTM Training System v3 — ttm-api.js
+// ✅ แก้เพียง GAS_URL บรรทัดเดียว
+// ================================================================
 
-const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyhwN-7ZnSXJgBONO1NJM-obrpp4ExG006BhY8xL0_YovhJMXQWksAgzHKfRB677z5zhg/exec';
-//                                                        ↑↑↑↑↑↑↑↑
-//  วาง Deployment ID ของ Code_API.gs ที่นี่
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbyhwN-7ZnSXJgBONO1NJM-obrpp4ExG006BhY8xL0_YovhJMXQWksAgzHKfRB677z5zhg/exec';
+//                                                    ↑↑↑↑↑↑↑↑
+//  วาง Web App Deployment ID จาก Code_API.gs ที่นี่
 
-const PDF_GAS_URL = 'https://script.google.com/macros/s/AKfycbwyqe_313gN8DxNCQPmuSp1VcqkdNR9wuo3TZ3Fku1PkMRBlIuoeJfOOMdTtf3aYwDc/exec';
-//                                                        ↑↑↑↑↑↑↑↑
-//  วาง Deployment ID ของ Code_PDF.gs (Project แยก) ที่นี่
-
-const PDF_SECRET  = 'ttm_v1';
-//  ✅ ต้องตรงกับ PDF_SECRET ใน Code_PDF.gs
-
-// ============================================================
-//  SESSION HELPERS
-// ============================================================
+// ================================================================
+//  SESSION
+// ================================================================
 function getSession() {
-  try { return JSON.parse(sessionStorage.getItem('ttm_session') || '{}'); }
-  catch (_) { return {}; }
+  try { return JSON.parse(sessionStorage.getItem('ttm_s') || '{}'); }
+  catch(_) { return {}; }
 }
-function saveSession(data) {
-  sessionStorage.setItem('ttm_session', JSON.stringify(data));
-}
-function clearSession() {
-  sessionStorage.removeItem('ttm_session');
-}
+function saveSession(d) { sessionStorage.setItem('ttm_s', JSON.stringify(d)); }
+function clearSession() { sessionStorage.removeItem('ttm_s'); }
 
-// ============================================================
-//  CORE FETCH — ใช้ GET เพื่อหลีกเลี่ยง CORS preflight ของ GAS
-// ============================================================
-async function gasGet(action, params = {}) {
-  const s   = getSession();
-  const all = { action, token: s.token || '', ...params };
-  const qs  = Object.entries(all)
-    .filter(([,v]) => v !== undefined && v !== null)
-    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(
+// ================================================================
+//  FETCH — GET + query string (หลีกเลี่ยง CORS preflight)
+// ================================================================
+async function call(action, params, timeoutSec) {
+  timeoutSec = timeoutSec || 30;
+  var s   = getSession();
+  var all = Object.assign({ action: action, token: s.token || '' }, params || {});
+  var qs  = Object.keys(all).map(function(k) {
+    var v = all[k];
+    if (v === null || v === undefined) return null;
+    return encodeURIComponent(k) + '=' + encodeURIComponent(
       typeof v === 'object' ? JSON.stringify(v) : String(v)
-    )}`).join('&');
-  const res = await fetch(GAS_API_URL + '?' + qs, { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
+    );
+  }).filter(Boolean).join('&');
+
+  var ctrl = new AbortController();
+  var tid  = setTimeout(function() { ctrl.abort(); }, timeoutSec * 1000);
+  try {
+    var res = await fetch(GAS_URL + '?' + qs, { redirect: 'follow', signal: ctrl.signal });
+    clearTimeout(tid);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return await res.json();
+  } catch(e) {
+    clearTimeout(tid);
+    if (e.name === 'AbortError') throw new Error('Timeout (' + timeoutSec + 's)');
+    throw e;
+  }
 }
 
-// ============================================================
-//  API FUNCTIONS
-// ============================================================
-async function apiLogin(username, password) {
-  return gasGet('login', { username, password });
-}
-async function apiLogout() {
-  const s = getSession();
-  try { await gasGet('logout', { token: s.token || '' }); } catch(_) {}
-  clearSession();
-}
-async function apiGetVideos()       { return gasGet('getVideos'); }
-async function apiGetSettings()     { return gasGet('getSettings'); }
-async function apiGetQuestions()    { return gasGet('getQuestions'); }
+// ================================================================
+//  API
+// ================================================================
+function apiLogin(u, p)    { return call('login', { username: u, password: p }); }
+function apiLogout()       { var s=getSession(); return call('logout',{token:s.token||''}).finally(clearSession); }
+function apiGetSettings()  { return call('getSettings'); }
+function apiGetVideos()    { return call('getVideos'); }
+function apiGetQuestions() { return call('getQuestions'); }
 
-async function apiSubmitQuiz(userData, answers, score, total, lang) {
-  return gasGet('submitQuiz', {
+// submitQuiz — อาจใช้เวลาถึง 90 วินาที (Slides + Drive)
+function apiSubmitQuiz(userData, answers, score, total, lang) {
+  return call('submitQuiz', {
     userData: JSON.stringify(userData),
     answers:  JSON.stringify(answers),
-    score, total, lang
-  });
+    score: score, total: total, lang: lang
+  }, 120); // 120 วินาที
 }
 
-// ✅ สร้าง PDF จาก Google Slides Template (เรียก GAS Project แยก)
-async function apiGeneratePdf(userData, answers, score, day, month, year, lang) {
-  const qs = new URLSearchParams({
-    secret:   PDF_SECRET,
-    userData: JSON.stringify(userData),
-    answers:  JSON.stringify(answers),
-    score, day, month, year, lang
-  });
-  const res = await fetch(PDF_GAS_URL + '?' + qs.toString(), { redirect: 'follow' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return res.json();
-}
-
-// ✅ ส่ง base64 PDF ไปกับอีเมล (GAS แนบไฟล์ให้)
-async function apiSendEmail(email, pdfBase64, filename, name, score, lang) {
-  return gasGet('sendEmail', { email, pdfBase64, filename, name, score, lang });
+// getPdf — รับ base64 PDF ด้วย jobId
+function apiGetPdf(jobId) {
+  return call('getPdf', { jobId: jobId }, 30);
 }
 
 // Admin
-async function apiGetUsers()           { return gasGet('getUsers'); }
-async function apiGetResults(limit)    { return gasGet('getResults', { limit: limit||200 }); }
-async function apiGetDashboard()       { return gasGet('getDashboard'); }
-async function apiAddQuestion(q)       { return gasGet('addQuestion',    { q: JSON.stringify(q) }); }
-async function apiUpdateQuestion(ri,q) { return gasGet('updateQuestion', { rowIndex:ri, q: JSON.stringify(q) }); }
-async function apiDeleteQuestion(ri)   { return gasGet('deleteQuestion', { rowIndex:ri }); }
-async function apiAddVideo(t,u,o)      { return gasGet('addVideo',    { title:t, url:u, order:o }); }
-async function apiUpdateVideo(ri,t,u,o){ return gasGet('updateVideo', { rowIndex:ri, title:t, url:u, order:o }); }
-async function apiDeleteVideo(ri)      { return gasGet('deleteVideo', { rowIndex:ri }); }
-async function apiAddUser(un,pw,r,d)   { return gasGet('addUser',    { username:un, password:pw, role:r, displayName:d }); }
-async function apiUpdateUser(ri,un,pw,r,s,d){ return gasGet('updateUser',{ rowIndex:ri, username:un, password:pw, role:r, status:s, displayName:d }); }
-async function apiDeleteUser(ri)       { return gasGet('deleteUser', { rowIndex:ri }); }
-async function apiSaveSetting(k,v)     { return gasGet('saveSetting',{ key:k, value:v }); }
+function apiGetUsers()            { return call('getUsers'); }
+function apiGetResults(n)         { return call('getResults', { limit: n || 200 }); }
+function apiGetDashboard()        { return call('getDashboard'); }
+function apiAddQuestion(q)        { return call('addQuestion',    { q: JSON.stringify(q) }); }
+function apiUpdateQuestion(ri, q) { return call('updateQuestion', { rowIndex: ri, q: JSON.stringify(q) }); }
+function apiDeleteQuestion(ri)    { return call('deleteQuestion', { rowIndex: ri }); }
+function apiAddVideo(t,u,o)       { return call('addVideo',    { title:t, url:u, order:o }); }
+function apiUpdateVideo(ri,t,u,o) { return call('updateVideo', { rowIndex:ri, title:t, url:u, order:o }); }
+function apiDeleteVideo(ri)       { return call('deleteVideo', { rowIndex:ri }); }
+function apiAddUser(u,p,r,d)      { return call('addUser',    { username:u, password:p, role:r, displayName:d }); }
+function apiUpdateUser(ri,u,p,r,s,d){ return call('updateUser',{ rowIndex:ri, username:u, password:p, role:r, status:s, displayName:d }); }
+function apiDeleteUser(ri)        { return call('deleteUser', { rowIndex:ri }); }
+function apiSaveSetting(k, v)     { return call('saveSetting', { key:k, value:v }); }
