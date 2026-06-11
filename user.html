@@ -2,729 +2,766 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TTM - การอบรมความปลอดภัย</title>
+<title>TTM - การอบรม</title>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 <style>
-/* ============ CONFIG ============
-   VIDEO_UNLOCK_SECONDS — วินาทีที่ต้องดูวิดีโอก่อนทำแบบทดสอบ
-   ตั้งค่าในตัวแปร JS ด้านล่าง
-   ================================ */
-:root{--red:#C0392B;--dred:#922B21;--gold:#D4AC0D;--light:#F5F6FA;--card:#fff;--bdr:#E2E8F0;--tx:#1E293B;--mt:#64748B;}
-*{font-family:'Sarabun',sans-serif;box-sizing:border-box;}
-body{background:var(--light);color:var(--tx);margin:0;}
+/* ──────────── CONFIG ────────────
+   VIDEO_UNLOCK_SECONDS = วินาทีที่ต้องดูวิดีโอก่อนทำแบบทดสอบ (0 = ไม่บังคับ)
+   แก้ใน <script> ด้านล่าง หัวข้อ CONFIG
+   ──────────────────────────────── */
+:root{--red:#C0392B;--dred:#922B21;--gold:#D4AC0D;
+      --card:#fff;--bg:#F5F6FA;--border:#E2E8F0;--text:#1E293B;--muted:#64748B}
+*{font-family:'Sarabun',sans-serif;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);margin:0;min-height:100vh}
 /* Topbar */
 .topbar{background:linear-gradient(135deg,#1A1A2E,#C0392B);padding:11px 20px;
   display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
-.topbar-logo{display:flex;align-items:center;gap:10px;}
-.topbar-logo img{height:34px;}
-.topbar-title{color:#fff;font-size:13px;font-weight:700;line-height:1.3;}
-.topbar-right{display:flex;align-items:center;gap:8px;}
-.lang-pill{display:flex;background:rgba(255,255,255,.15);border-radius:7px;overflow:hidden;}
-.lp-btn{background:none;border:none;color:rgba(255,255,255,.65);font-size:11px;font-weight:700;
-  padding:5px 11px;cursor:pointer;font-family:'Sarabun',sans-serif;}
-.lp-btn.on{background:rgba(255,255,255,.25);color:#fff;}
-.btn-out{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.22);
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.topbar-logo img{height:34px}
+.topbar-title{color:#fff;font-size:13px;font-weight:700;line-height:1.3}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.lang-row{display:flex;background:rgba(255,255,255,.12);border-radius:7px;overflow:hidden}
+.lb{background:none;border:none;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;
+  padding:5px 11px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .2s}
+.lb.on{background:rgba(255,255,255,.25);color:#fff}
+.btn-lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
   border-radius:7px;color:#fff;font-size:12px;padding:5px 12px;cursor:pointer;
-  font-family:'Sarabun',sans-serif;}
+  font-family:'Sarabun',sans-serif}
 /* Steps */
-.steps{background:#fff;border-bottom:1px solid var(--bdr);padding:12px 20px;overflow-x:auto;}
-.steps-row{display:flex;align-items:center;max-width:680px;margin:0 auto;min-width:fit-content;}
-.step-wrap{display:flex;flex-direction:column;align-items:center;}
-.step-ico{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:14px;font-weight:700;transition:all .3s;
-  background:var(--bdr);color:var(--mt);border:2px solid var(--bdr);}
-.step-ico.done{background:#28a745;border-color:#28a745;color:#fff;}
-.step-ico.cur {background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 4px rgba(192,57,43,.18);}
-.step-lbl{font-size:10px;font-weight:600;color:var(--mt);margin-top:3px;white-space:nowrap;}
-.step-lbl.done{color:#28a745;} .step-lbl.cur{color:var(--red);}
-.step-conn{flex:1;height:2px;background:var(--bdr);transition:background .3s;min-width:30px;}
-.step-conn.done{background:#28a745;}
+.steps-bar{background:#fff;border-bottom:1px solid var(--border);
+  padding:12px 20px;overflow-x:auto}
+.steps{display:flex;align-items:center;max-width:660px;margin:0 auto;min-width:fit-content}
+.si{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;flex-shrink:0;transition:all .3s;
+  background:var(--border);color:var(--muted);border:2px solid var(--border)}
+.si.on{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+.si.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.sl{font-size:11px;font-weight:600;color:var(--muted);margin-top:3px;white-space:nowrap}
+.sl.on{color:var(--red)}.sl.done{color:#22c55e}
+.sc{flex:1;height:2px;background:var(--border);transition:background .3s}
+.sc.done{background:#22c55e}
 /* Content */
-.wrap{max-width:860px;margin:0 auto;padding:22px 14px;}
-.sec{display:none;animation:fa .4s ease both;}
-.sec.on{display:block;}
-@keyframes fa{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.wrap{max-width:860px;margin:0 auto;padding:22px 14px}
+.section{display:none}.section.on{display:block}
 /* Card */
-.ccard{background:var(--card);border:1px solid var(--bdr);border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);}
-.ch{background:linear-gradient(135deg,#1A1A2E,#2D3561);padding:18px 24px;display:flex;align-items:center;gap:12px;}
-.ch-ico{font-size:20px;color:var(--gold);}
-.ch-title{color:#fff;font-size:17px;font-weight:700;}
-.ch-sub{color:rgba(255,255,255,.5);font-size:12px;}
-.cb{padding:24px;}
+.card-ttm{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);
+  animation:fsin .4s ease both}
+@keyframes fsin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ch{background:linear-gradient(135deg,#1A1A2E,#2D3561);padding:18px 24px;
+  display:flex;align-items:center;gap:12px}
+.ch-ico{font-size:20px;color:var(--gold)}
+.ch-t{color:#fff;font-size:16px;font-weight:700}
+.ch-s{color:rgba(255,255,255,.5);font-size:12px}
+.cb{padding:24px}
 /* Form */
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-@media(max-width:560px){.frow{grid-template-columns:1fr;}}
-.fg label{font-size:12px;font-weight:600;color:var(--mt);display:block;margin-bottom:5px;}
-.fg label .req{color:var(--red);}
-.fc,.fs{width:100%;border:1.5px solid var(--bdr);border-radius:9px;padding:10px 12px;
-  font-size:14px;color:var(--tx);font-family:'Sarabun',sans-serif;background:var(--light);}
-.fc:focus,.fs:focus{outline:none;border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(192,57,43,.1);}
-.addr-box{background:var(--light);border-radius:9px;padding:14px;margin-bottom:14px;}
-.addr-title{font-size:12px;font-weight:700;color:var(--mt);margin-bottom:11px;}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:560px){.frow{grid-template-columns:1fr}}
+.fg label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block}
+.fg label .req{color:var(--red)}
+.fc,.fs{width:100%;border:1.5px solid var(--border);border-radius:9px;
+  padding:10px 13px;font-size:14px;color:var(--text);
+  font-family:'Sarabun',sans-serif;background:var(--bg);transition:all .2s}
+.fc:focus,.fs:focus{outline:none;border-color:var(--red);background:#fff;
+  box-shadow:0 0 0 3px rgba(192,57,43,.1)}
+.fc::placeholder{color:#CBD5E1}
+.addr-box{background:var(--bg);border-radius:9px;padding:14px;margin-bottom:14px}
+.addr-box-t{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px}
 /* Buttons */
-.btn-r{background:linear-gradient(135deg,var(--red),var(--dred));border:none;border-radius:10px;
-  color:#fff;font-size:14px;font-weight:700;padding:12px 28px;cursor:pointer;
-  font-family:'Sarabun',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .25s;}
-.btn-r:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,57,43,.4);}
-.btn-r:disabled{opacity:.4;cursor:not-allowed;transform:none;}
-.btn-g{background:linear-gradient(135deg,#28a745,#1e7e34);border:none;border-radius:10px;
-  color:#fff;font-size:14px;font-weight:700;padding:12px 28px;cursor:pointer;
-  font-family:'Sarabun',sans-serif;display:inline-flex;align-items:center;gap:7px;transition:all .25s;}
-.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(40,167,69,.4);}
+.btn-p{background:linear-gradient(135deg,var(--red),var(--dred));border:none;
+  border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:11px 26px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .3s;
+  display:inline-flex;align-items:center;gap:7px}
+.btn-p:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,57,43,.35)}
+.btn-p:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-g{background:linear-gradient(135deg,#16a34a,#15803d);border:none;
+  border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:11px 26px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .3s;
+  display:inline-flex;align-items:center;gap:7px}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(22,163,74,.35)}
 /* Video */
-.vid-wrap{position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:10px;overflow:hidden;}
-.vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none;}
-.timer-bar-bg{background:var(--bdr);border-radius:99px;height:7px;margin:12px 0 3px;overflow:hidden;}
-.timer-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#F97316);
-  transition:width 1s linear;width:0%;}
-.unlock-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(40,167,69,.1);
-  border:1px solid rgba(40,167,69,.25);border-radius:7px;padding:7px 12px;
-  font-size:13px;font-weight:700;color:#16A34A;}
+.vid-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:10px;overflow:hidden;background:#000}
+.vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.timer-wrap{margin-top:14px}
+.timer-bar-bg{background:#E2E8F0;border-radius:99px;height:7px;overflow:hidden}
+.timer-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#f97316);
+  transition:width 1s linear;width:0%}
+.timer-info{display:flex;justify-content:space-between;font-size:12px;
+  color:var(--muted);margin-top:4px}
+.unlock-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);
+  border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;color:#16a34a}
 /* Quiz */
-.qcard{border:1.5px solid var(--bdr);border-radius:10px;padding:18px;margin-bottom:14px;background:#fff;}
-.qno{font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;margin-bottom:8px;}
-.qtxt{font-size:15px;font-weight:600;line-height:1.55;margin-bottom:12px;}
-.qopt{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1.5px solid var(--bdr);
-  border-radius:9px;cursor:pointer;margin-bottom:7px;background:var(--light);transition:all .2s;}
-.qopt:hover{border-color:var(--red);background:rgba(192,57,43,.04);}
-.qopt.sel{border-color:var(--red);background:rgba(192,57,43,.07);}
-.opt-badge{width:26px;height:26px;border-radius:7px;background:var(--bdr);
-  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
-  flex-shrink:0;transition:all .2s;}
-.qopt.sel .opt-badge{background:var(--red);color:#fff;}
-.opt-txt{font-size:14px;padding-top:3px;line-height:1.45;}
+.qcard{border:1.5px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;background:#fff}
+.qnum{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.qtxt{font-size:14px;font-weight:600;line-height:1.6;margin-bottom:12px}
+.qopt{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;
+  border:1.5px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all .2s;margin-bottom:7px;background:var(--bg)}
+.qopt:hover{border-color:var(--red);background:rgba(192,57,43,.03)}
+.qopt.sel{border-color:var(--red);background:rgba(192,57,43,.07)}
+.obadge{width:26px;height:26px;border-radius:7px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;
+  flex-shrink:0;transition:all .2s;color:var(--muted)}
+.qopt.sel .obadge{background:var(--red);color:#fff}
+.otxt{font-size:13px;padding-top:3px;line-height:1.5}
 /* Result */
-.result-circle{width:130px;height:130px;border-radius:50%;display:flex;align-items:center;
-  flex-direction:column;justify-content:center;margin:0 auto 18px;}
-.result-circle.pass{background:radial-gradient(circle,rgba(40,167,69,.18),rgba(40,167,69,.04));border:4px solid #28a745;}
-.result-circle.fail{background:radial-gradient(circle,rgba(192,57,43,.18),rgba(192,57,43,.04));border:4px solid var(--red);}
-.result-score{font-size:38px;font-weight:800;line-height:1;}
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
-.stat-box{background:var(--light);border-radius:9px;padding:12px;text-align:center;}
-.stat-n{font-size:22px;font-weight:800;}
-.stat-l{font-size:11px;color:var(--mt);}
-/* PDF */
-.pdf-box{background:#F0FDF4;border:1px solid #86EFAC;border-radius:11px;padding:20px;
-  text-align:center;margin-top:18px;}
+.res-circle{width:130px;height:130px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 18px}
+.res-circle.pass{background:rgba(22,163,74,.1);border:4px solid #22c55e}
+.res-circle.fail{background:rgba(192,57,43,.1);border:4px solid var(--red)}
+.res-score{font-size:38px;font-weight:800;line-height:1}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.sg{background:var(--bg);border-radius:9px;padding:12px;text-align:center}
+.sg-n{font-size:22px;font-weight:800}
+.sg-l{font-size:11px;color:var(--muted)}
+/* PDF box */
+.pdf-box{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;
+  padding:22px;text-align:center;margin-top:18px}
+/* Info banner */
+.info-banner{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;
+  padding:10px 14px;font-size:12px;color:#1D4ED8;margin-bottom:14px}
 /* Toast */
-.toast-c{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px;}
-.toast-i{background:#1E293B;color:#fff;border-radius:10px;padding:12px 16px;
-  font-size:13px;min-width:240px;display:flex;align-items:center;gap:8px;
-  box-shadow:0 8px 24px rgba(0,0,0,.3);animation:ti .3s ease;}
-@keyframes ti{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:none}}
-.ti-ok{border-left:3px solid #28a745;} .ti-err{border-left:3px solid var(--red);}
-.info-band{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:9px;padding:11px 14px;
-  font-size:13px;color:#1D4ED8;margin-bottom:16px;}
-.warn-band{background:rgba(212,172,13,.1);border:1px solid rgba(212,172,13,.3);border-radius:9px;
-  padding:11px 14px;font-size:13px;color:#92640D;margin-bottom:16px;}
+.tc{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast-i{background:#1E293B;color:#fff;border-radius:10px;padding:12px 15px;font-size:13px;
+  min-width:240px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);animation:tin .25s ease}
+@keyframes tin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.retake-banner{background:rgba(212,172,13,.1);border:1px solid rgba(212,172,13,.3);
+  border-radius:8px;padding:10px 14px;font-size:13px;color:#92640D;margin-bottom:14px;display:none}
 </style>
 </head>
 <body>
-<!-- TOPBAR -->
+<!-- Topbar -->
 <div class="topbar">
   <div class="topbar-logo">
-    <img src="https://ttm-jda.com/themes/default/images/all/logo/pic_logo.png" alt="TTM" onerror="this.style.display='none'">
-    <div class="topbar-title" id="sysT">ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM</div>
+    <img src="https://ttm-jda.com/themes/default/images/all/logo/pic_logo.png" onerror="this.style.display='none'" alt="TTM">
+    <div class="topbar-title" id="topT">ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM</div>
   </div>
-  <div class="topbar-right">
-    <div class="lang-pill">
-      <button class="lp-btn on" onclick="setLang('th')" id="bTH">🇹🇭 TH</button>
-      <button class="lp-btn"    onclick="setLang('en')" id="bEN">🇺🇸 EN</button>
+  <div class="topbar-r">
+    <div class="lang-row">
+      <button class="lb on" onclick="setLang('th')" id="bTH">🇹🇭</button>
+      <button class="lb"    onclick="setLang('en')" id="bEN">🇺🇸</button>
     </div>
-    <button class="btn-out" onclick="doLogout()"><i class="fas fa-sign-out-alt me-1"></i><span id="outTxt">ออก</span></button>
+    <button class="btn-lo" onclick="doLogout()"><i class="fas fa-sign-out-alt me-1"></i><span id="loTxt">ออก</span></button>
   </div>
 </div>
-<!-- STEPS -->
-<div class="steps"><div class="steps-row">
-  <div class="step-wrap"><div class="step-ico cur" id="si1"><i class="fas fa-user"></i></div><div class="step-lbl cur" id="sl1">ข้อมูล</div></div>
-  <div class="step-conn" id="sc1"></div>
-  <div class="step-wrap"><div class="step-ico" id="si2"><i class="fab fa-youtube"></i></div><div class="step-lbl" id="sl2">วิดีโอ</div></div>
-  <div class="step-conn" id="sc2"></div>
-  <div class="step-wrap"><div class="step-ico" id="si3"><i class="fas fa-pencil-alt"></i></div><div class="step-lbl" id="sl3">แบบทดสอบ</div></div>
-  <div class="step-conn" id="sc3"></div>
-  <div class="step-wrap"><div class="step-ico" id="si4"><i class="fas fa-trophy"></i></div><div class="step-lbl" id="sl4">ผลลัพธ์</div></div>
-</div></div>
-<!-- CONTENT -->
+
+<!-- Steps -->
+<div class="steps-bar">
+  <div class="steps">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si on" id="si1"><i class="fas fa-user"></i></div>
+      <div class="sl on" id="sl1">ข้อมูล</div>
+    </div>
+    <div class="sc" id="sc1"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si2"><i class="fab fa-youtube"></i></div>
+      <div class="sl" id="sl2">วิดีโอ</div>
+    </div>
+    <div class="sc" id="sc2"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si3"><i class="fas fa-pencil-alt"></i></div>
+      <div class="sl" id="sl3">แบบทดสอบ</div>
+    </div>
+    <div class="sc" id="sc3"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si4"><i class="fas fa-trophy"></i></div>
+      <div class="sl" id="sl4">ผลลัพธ์</div>
+    </div>
+  </div>
+</div>
+
 <div class="wrap">
-
-<!-- STEP 1: ข้อมูล -->
-<div class="sec on" id="s-info">
-  <div class="ccard">
-    <div class="ch"><div class="ch-ico"><i class="fas fa-id-card"></i></div>
-      <div><div class="ch-title" id="infoT">ข้อมูลผู้เข้าอบรม</div>
-           <div class="ch-sub" id="infoS">กรุณากรอกข้อมูลให้ครบก่อนเริ่มอบรม</div></div></div>
-    <div class="cb">
+<!-- ─── STEP 1: ข้อมูล ─── -->
+<div class="section on" id="sec-info">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fas fa-id-card"></i></div>
+    <div><div class="ch-t" id="infoT">ข้อมูลผู้เข้าอบรม</div>
+         <div class="ch-s" id="infoS">กรุณากรอกข้อมูลให้ครบถ้วน</div></div></div>
+  <div class="cb">
+    <div class="frow">
+      <div class="fg"><label id="lName">ชื่อ-นามสกุล <span class="req">*</span></label>
+        <input class="fc" type="text" id="fName" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="fg"><label id="lAge">อายุ <span class="req">*</span></label>
+        <input class="fc" type="number" id="fAge" placeholder="อายุ" min="15" max="80"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label id="lBlood">กรุ๊ปเลือด <span class="req">*</span></label>
+        <select class="fc fs" id="fBlood">
+          <option value="">— เลือก —</option>
+          <option>O</option><option>A</option><option>B</option><option>AB</option>
+        </select></div>
+      <div class="fg"><label id="lTel">เบอร์โทร <span class="req">*</span></label>
+        <input class="fc" type="tel" id="fTel" placeholder="0XX-XXXXXXX"></div>
+    </div>
+    <div class="addr-box">
+      <div class="addr-box-t" id="lAddr"><i class="fas fa-map-marker-alt me-1"></i>ที่อยู่</div>
       <div class="frow">
-        <div class="fg"><label id="lName"><i class="fas fa-user me-1" style="color:var(--mt)"></i>ชื่อ-นามสกุล <span class="req">*</span></label>
-          <input class="fc" type="text" id="fName" placeholder="กรอกชื่อ-นามสกุล"></div>
-        <div class="fg"><label id="lAge">อายุ <span class="req">*</span></label>
-          <input class="fc" type="number" id="fAge" placeholder="ปี" min="15" max="80"></div>
-      </div>
-      <div class="frow">
-        <div class="fg"><label id="lBlood">กรุ๊ปเลือด <span class="req">*</span></label>
-          <select class="fs" id="fBlood"><option value="">— เลือก —</option>
-            <option>O</option><option>A</option><option>B</option><option>AB</option></select></div>
-        <div class="fg"><label id="lTel">เบอร์โทร <span class="req">*</span></label>
-          <input class="fc" type="tel" id="fTel" placeholder="0XX-XXXXXXX"></div>
-      </div>
-      <div class="addr-box">
-        <div class="addr-title" id="lAddr"><i class="fas fa-map-marker-alt me-1"></i>ที่อยู่</div>
-        <div class="frow">
-          <div class="fg"><label id="lNo">บ้านเลขที่</label><input class="fc" type="text" id="fNo"></div>
-          <div class="fg"><label id="lMoo">หมู่</label><input class="fc" type="text" id="fMoo"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label id="lRoad">ถนน</label><input class="fc" type="text" id="fRoad"></div>
-          <div class="fg"><label id="lSub">แขวง/ตำบล</label><input class="fc" type="text" id="fSub"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label id="lDist">เขต/อำเภอ</label><input class="fc" type="text" id="fDist"></div>
-          <div class="fg"><label id="lCity">จังหวัด <span class="req">*</span></label><input class="fc" type="text" id="fCity"></div>
-        </div>
-        <div class="frow">
-          <div class="fg"><label id="lPost">รหัสไปรษณีย์</label><input class="fc" type="text" id="fPost" maxlength="5"></div>
-          <div class="fg"></div>
-        </div>
+        <div class="fg"><label id="lNo">บ้านเลขที่</label><input class="fc" id="fNo" placeholder="บ้านเลขที่"></div>
+        <div class="fg"><label id="lMoo">หมู่</label><input class="fc" id="fMoo" placeholder="หมู่ที่"></div>
       </div>
       <div class="frow">
-        <div class="fg"><label id="lComp">สังกัดบริษัท <span class="req">*</span></label>
-          <input class="fc" type="text" id="fComp" placeholder="ชื่อบริษัท"></div>
+        <div class="fg"><label id="lRoad">ถนน</label><input class="fc" id="fRoad" placeholder="ถนน"></div>
+        <div class="fg"><label id="lSub">แขวง/ตำบล</label><input class="fc" id="fSub" placeholder="แขวง/ตำบล"></div>
       </div>
-      <div style="text-align:right;margin-top:8px;">
-        <button class="btn-r" onclick="goVideo()">
-          <span id="btnNext">ถัดไป: ดูวิดีโออบรม</span><i class="fas fa-arrow-right"></i></button>
+      <div class="frow">
+        <div class="fg"><label id="lDist">เขต/อำเภอ</label><input class="fc" id="fDist" placeholder="เขต/อำเภอ"></div>
+        <div class="fg"><label id="lCity">จังหวัด <span class="req">*</span></label><input class="fc" id="fCity" placeholder="จังหวัด"></div>
       </div>
+      <div class="frow">
+        <div class="fg"><label id="lPost">รหัสไปรษณีย์</label><input class="fc" id="fPost" placeholder="XXXXX" maxlength="5"></div>
+        <div class="fg"></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label id="lComp">สังกัดบริษัท <span class="req">*</span></label>
+        <input class="fc" id="fComp" placeholder="ชื่อบริษัท"></div>
+    </div>
+    <div class="text-end mt-2">
+      <button class="btn-p" onclick="goVideo()">
+        <span id="btnInfo">ถัดไป: ดูวิดีโออบรม</span><i class="fas fa-arrow-right"></i>
+      </button>
     </div>
   </div>
 </div>
+</div>
 
-<!-- STEP 2: วิดีโอ -->
-<div class="sec" id="s-video">
-  <div class="ccard">
-    <div class="ch"><div class="ch-ico"><i class="fab fa-youtube"></i></div>
-      <div><div class="ch-title" id="vidT">วิดีโอการอบรม</div>
-           <div class="ch-sub" id="vidS">ดูวิดีโอให้ครบเวลาก่อนทำแบบทดสอบ</div></div></div>
-    <div class="cb">
-      <div class="info-band" id="vidInfo"><i class="fas fa-info-circle me-2"></i>
-        <span id="vidInfoTxt">ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด</span></div>
-      <div id="vidTabs" style="display:none;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-      <div class="vid-wrap"><iframe id="ytFrame" src="" allowfullscreen allow="autoplay;encrypted-media"></iframe></div>
-      <div style="margin-top:14px;">
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mt);">
-          <span id="timerLbl">⏱ เวลาที่ดูแล้ว</span><span id="timerCD"></span></div>
-        <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
-        <div style="font-size:11px;color:var(--mt);" id="timerNote"></div>
+<!-- ─── STEP 2: วิดีโอ ─── -->
+<div class="section" id="sec-video">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fab fa-youtube"></i></div>
+    <div><div class="ch-t" id="vidT">วิดีโอการอบรม</div>
+         <div class="ch-s" id="vidS">ดูวิดีโอให้ครบก่อนทำแบบทดสอบ</div></div></div>
+  <div class="cb">
+    <div class="info-banner" id="vidBanner">
+      <i class="fas fa-info-circle me-1"></i>
+      <span id="vidBannerTxt">ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด</span>
+    </div>
+    <div id="vidTabs" style="display:none;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px"></div>
+    <div class="vid-wrap" id="vidWrap">
+      <iframe id="ytFrame" src="" allowfullscreen
+        allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
+    </div>
+    <div class="timer-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px">
+        <span id="timerLbl">⏱ เวลาที่ดูแล้ว</span><span id="timerCD"></span>
       </div>
-      <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:18px;gap:12px;">
-        <div class="unlock-badge" id="unlockBadge" style="display:none;">
-          <i class="fas fa-unlock-alt"></i><span id="unlockTxt">ปลดล็อกแล้ว!</span></div>
-        <button class="btn-r" id="btnQuiz" onclick="goQuiz()" disabled>
-          <i class="fas fa-lock me-1" id="quizIcon"></i><span id="btnQuizTxt">ดูวิดีโอให้ครบก่อน</span></button>
+      <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px" id="timerNote"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:16px;gap:12px">
+      <div id="unlockBadge" class="unlock-badge" style="display:none">
+        <i class="fas fa-unlock-alt"></i><span id="unlockTxt">ปลดล็อกแล้ว!</span>
       </div>
+      <button class="btn-p" id="btnQuiz" onclick="goQuiz()" disabled>
+        <i class="fas fa-lock me-1" id="quizIco"></i>
+        <span id="btnQuizTxt">ดูวิดีโอให้ครบก่อน</span>
+      </button>
     </div>
   </div>
 </div>
+</div>
 
-<!-- STEP 3: แบบทดสอบ -->
-<div class="sec" id="s-quiz">
-  <div class="ccard">
-    <div class="ch"><div class="ch-ico"><i class="fas fa-pencil-alt"></i></div>
-      <div><div class="ch-title" id="quizT">แบบทดสอบ</div>
-           <div class="ch-sub" id="quizS">30 ข้อ — เลือกคำตอบที่ถูกต้อง</div></div></div>
-    <div class="cb">
-      <div class="warn-band" id="retakeBand" style="display:none;">
-        <i class="fas fa-redo me-2"></i><span id="retakeTxt">ทำเฉพาะข้อที่ตอบผิด</span></div>
-      <div id="quizArea"><div style="text-align:center;padding:32px;color:var(--mt);">
-        <span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...</div></div>
-      <div style="text-align:right;margin-top:14px;">
-        <button class="btn-r" onclick="submitQuiz()" id="btnSubmit" style="display:none;">
-          <i class="fas fa-paper-plane me-2"></i><span id="btnSubTxt">ส่งคำตอบ</span></button>
-      </div>
+<!-- ─── STEP 3: แบบทดสอบ ─── -->
+<div class="section" id="sec-quiz">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fas fa-pencil-alt"></i></div>
+    <div><div class="ch-t" id="quizT">แบบทดสอบ</div>
+         <div class="ch-s" id="quizS">30 ข้อ — เลือกคำตอบที่ถูกต้อง</div></div></div>
+  <div class="cb">
+    <div class="retake-banner" id="retakeBanner"></div>
+    <div id="quizArea"><div style="text-align:center;padding:36px;color:var(--muted)">
+      <span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...</div></div>
+    <div class="text-end mt-3">
+      <button class="btn-p" onclick="doSubmit()" id="btnSubmit" style="display:none">
+        <i class="fas fa-paper-plane me-1"></i><span id="btnSubTxt">ส่งคำตอบ</span>
+      </button>
     </div>
   </div>
 </div>
+</div>
 
-<!-- STEP 4: ผลลัพธ์ -->
-<div class="sec" id="s-result">
-  <div class="ccard">
-    <div class="ch" id="resultHead" style="background:linear-gradient(135deg,#1a3a1a,#28a745);">
-      <div class="ch-ico"><i class="fas fa-trophy"></i></div>
-      <div><div class="ch-title" id="resultT">ผลการสอบ</div>
-           <div class="ch-sub">TTM Safety Training</div></div></div>
-    <div class="cb" style="text-align:center;">
-      <div class="result-circle pass" id="rCircle">
-        <div class="result-score" id="rScore" style="color:#28a745">—</div>
-        <div style="font-size:13px;color:var(--mt)">/30</div>
+<!-- ─── STEP 4: ผลลัพธ์ ─── -->
+<div class="section" id="sec-result">
+<div class="card-ttm">
+  <div class="ch" id="resHdr" style="background:linear-gradient(135deg,#1a3a1a,#22c55e)">
+    <div class="ch-ico"><i class="fas fa-trophy"></i></div>
+    <div><div class="ch-t" id="resT">ผลการสอบ</div>
+         <div class="ch-s">การอบรมข้อกำหนดด้านความปลอดภัย TTM</div></div>
+  </div>
+  <div class="cb" style="text-align:center">
+    <div class="res-circle pass" id="resCircle">
+      <div class="res-score" id="resScore" style="color:#22c55e">—</div>
+      <div style="font-size:12px;color:var(--muted)">/30</div>
+    </div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px" id="resVerdict"></div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:18px" id="resMsg"></div>
+    <div class="score-grid">
+      <div class="sg"><div class="sg-n" style="color:#22c55e" id="resC">—</div><div class="sg-l" id="resCL">ข้อถูก</div></div>
+      <div class="sg"><div class="sg-n" style="color:var(--red)" id="resW">—</div><div class="sg-l" id="resWL">ข้อผิด</div></div>
+      <div class="sg"><div class="sg-n" style="color:var(--muted)" id="resP">—</div><div class="sg-l" id="resPL">เกณฑ์ผ่าน</div></div>
+    </div>
+    <!-- PDF section -->
+    <div id="pdfArea">
+      <!-- Loading -->
+      <div id="pdfLoading" style="display:none;color:var(--muted);margin-top:16px">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        <span id="pdfLoadTxt">กำลังสร้างกระดาษคำตอบจาก Template...</span>
       </div>
-      <div style="font-size:21px;font-weight:800;margin-bottom:6px;" id="rVerdict"></div>
-      <div style="color:var(--mt);font-size:14px;margin-bottom:20px;" id="rMsg"></div>
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-n" style="color:#28a745" id="rRight">—</div><div class="stat-l" id="rRightL">ข้อถูก</div></div>
-        <div class="stat-box"><div class="stat-n" style="color:var(--red)" id="rWrong">—</div><div class="stat-l" id="rWrongL">ข้อผิด</div></div>
-        <div class="stat-box"><div class="stat-n" style="color:var(--mt)" id="rPassN">—</div><div class="stat-l" id="rPassL">เกณฑ์ผ่าน</div></div>
+      <!-- Ready -->
+      <div class="pdf-box" id="pdfBox" style="display:none">
+        <i class="fas fa-file-pdf fa-2x" style="color:#16a34a;margin-bottom:10px"></i>
+        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:5px" id="pdfReadyTxt">กระดาษคำตอบพร้อมแล้ว!</div>
+        <div style="font-size:12px;color:#4B5563;margin-bottom:14px" id="pdfNoteTxt">กดปุ่มด้านล่างเพื่อดาวน์โหลด</div>
+        <button class="btn-g" onclick="downloadPdf()">
+          <i class="fas fa-download me-1"></i><span id="pdfDlTxt">ดาวน์โหลดกระดาษคำตอบ PDF</span>
+        </button>
       </div>
-      <!-- PDF section — แสดงเฉพาะ PASS -->
-      <div id="pdfSection" style="display:none;">
-        <div class="pdf-box" id="pdfBox">
-          <div id="pdfLoading" style="color:var(--mt);padding:12px;">
-            <span class="spinner-border spinner-border-sm me-2"></span>
-            <span id="pdfLoadTxt">กำลังสร้างกระดาษคำตอบจาก Template...</span>
-          </div>
-          <div id="pdfReady" style="display:none;">
-            <i class="fas fa-file-pdf fa-2x" style="color:#16A34A;margin-bottom:8px;"></i>
-            <div style="font-size:15px;font-weight:700;color:#16A34A;margin-bottom:5px;" id="pdfReadyTxt">กระดาษคำตอบพร้อมแล้ว!</div>
-            <div style="font-size:13px;color:#4B5563;margin-bottom:14px;" id="pdfSubTxt">กดปุ่มด้านล่างเพื่อดาวน์โหลด</div>
-            <button class="btn-g" onclick="downloadPdf()">
-              <i class="fas fa-download me-2"></i><span id="pdfDlTxt">ดาวน์โหลดกระดาษคำตอบ PDF</span></button>
-          </div>
-        </div>
-      </div>
-      <!-- Retake button — แสดงเฉพาะ FAIL -->
-      <div id="retakeSection" style="display:none;margin-top:16px;">
-        <button class="btn-r" onclick="retakeQuiz()">
-          <i class="fas fa-redo me-2"></i><span id="btnRetakeTxt">ทำแบบทดสอบข้อที่ผิดใหม่</span></button>
-      </div>
+      <!-- Error -->
+      <div id="pdfError" style="display:none;color:var(--red);margin-top:14px;font-size:13px"></div>
+    </div>
+    <!-- Retake -->
+    <div id="retakeArea" style="display:none;margin-top:16px">
+      <button class="btn-p" onclick="doRetake()">
+        <i class="fas fa-redo me-1"></i><span id="btnRetakeTxt">ทำข้อที่ผิดใหม่</span>
+      </button>
     </div>
   </div>
 </div>
-
+</div>
 </div><!-- /wrap -->
-<div class="toast-c" id="tc"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<div class="tc" id="tc"></div>
+
 <script src="ttm-api.js"></script>
 <script>
-// ================================================================
+// ════════════════════════════════════════════
 // ✅ CONFIG — แก้ที่นี่
-// ================================================================
-var VIDEO_UNLOCK_SECONDS = 30; // วินาทีที่ต้องดูวิดีโอก่อนทำแบบทดสอบ (0 = ไม่บังคับ)
+// ════════════════════════════════════════════
+const VIDEO_UNLOCK_SECONDS = 30; // วินาทีที่ต้องดูวิดีโอ (0 = ไม่บังคับ)
+// ════════════════════════════════════════════
 
-// ================================================================
 // STATE
-// ================================================================
-var lang         = 'th';
-var userData     = {};
-var formData     = {};
-var allQuestions = [];
-var quizQs       = [];      // 30 ข้อที่สุ่มแล้ว
-var curAnswers   = {};       // { qIndex: '1'|'2'|'3'|'4' }
-var wrongIdx     = [];
-var isRetake     = false;
-var score        = 0;
-var passScore    = 27;
-var videos       = [];
-var timerElapsed = 0;
-var timerTid     = null;
-var unlocked     = false;
-var pdfJobId     = '';
-var pdfBase64    = '';
-var pdfFilename  = 'AnswerSheet.pdf';
+let lang       = 'th';
+let sess       = {};
+let formData   = {};
+let videos     = [];
+let allQ       = [];
+let quizQ      = [];        // 30 ข้อที่สุ่ม
+let answers    = {};        // { qIdx: '1'|'2'|'3'|'4' }
+let wrongIdx   = [];
+let isRetake   = false;
+let score      = 0;
+let passScore  = 27;
+let pdfBase64  = '';
+let pdfFilename= '';
+let timerEl    = 0;
+let timerTick  = null;
+let unlocked   = false;
 
-// ================================================================
-// i18n
-// ================================================================
-var TX = {
-  th: {
+// ────────── i18n ──────────
+const TX = {
+  th:{
+    topT:'ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM', loTxt:'ออก',
     sl:['ข้อมูล','วิดีโอ','แบบทดสอบ','ผลลัพธ์'],
-    infoT:'ข้อมูลผู้เข้าอบรม', infoS:'กรุณากรอกข้อมูลให้ครบก่อนเริ่มอบรม',
-    vidT:'วิดีโอการอบรม', vidS:'ดูวิดีโอให้ครบเวลาก่อนทำแบบทดสอบ',
-    vidInfoTxt:'ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด',
+    infoT:'ข้อมูลผู้เข้าอบรม', infoS:'กรุณากรอกข้อมูลให้ครบถ้วน',
+    vidT:'วิดีโอการอบรม', vidS:'ดูวิดีโอให้ครบก่อนทำแบบทดสอบ',
+    vidBannerTxt:'ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด',
     quizT:'แบบทดสอบ', quizS:'30 ข้อ — เลือกคำตอบที่ถูกต้อง',
-    btnNext:'ถัดไป: ดูวิดีโออบรม', btnQuizLocked:'ดูวิดีโอให้ครบก่อน',
+    resT:'ผลการสอบ',
+    btnInfo:'ถัดไป: ดูวิดีโออบรม', btnQuizLocked:'ดูวิดีโอให้ครบก่อน',
     btnQuizUnlocked:'เริ่มทำแบบทดสอบ', btnSubTxt:'ส่งคำตอบ',
-    retakeTxt:'ทำเฉพาะข้อที่ตอบผิด', resultT:'ผลการสอบ',
-    pdfLoadTxt:'กำลังสร้างกระดาษคำตอบจาก Template...',
-    pdfReadyTxt:'กระดาษคำตอบพร้อมแล้ว!', pdfSubTxt:'กดปุ่มด้านล่างเพื่อดาวน์โหลด',
-    pdfDlTxt:'ดาวน์โหลดกระดาษคำตอบ PDF', btnRetakeTxt:'ทำแบบทดสอบข้อที่ผิดใหม่',
-    rRightL:'ข้อถูก', rWrongL:'ข้อผิด', rPassL:'เกณฑ์ผ่าน',
+    unlockTxt:'ปลดล็อกแล้ว!', timerLbl:'⏱ เวลาที่ดูแล้ว',
+    timerRemain:'เหลืออีก', timerDone:'ดูครบแล้ว ✓',
+    noVideo:'ไม่พบวิดีโอ — ปลดล็อกอัตโนมัติ', playHint:'▶ กดเล่นวิดีโอเพื่อเริ่มนับเวลา',
+    pdfLoadTxt:'กำลังสร้างกระดาษคำตอบจาก Template... (อาจใช้เวลา 20-30 วินาที)',
+    pdfReadyTxt:'กระดาษคำตอบพร้อมแล้ว!', pdfNoteTxt:'กดปุ่มด้านล่างเพื่อดาวน์โหลด',
+    pdfDlTxt:'ดาวน์โหลดกระดาษคำตอบ PDF',
     PASS:'ผ่าน ✓', FAIL:'ไม่ผ่าน ✗',
-    msgPass:'ยินดีด้วย! คุณผ่านการอบรมแล้ว',
-    msgFail:'คุณยังไม่ผ่านเกณฑ์ กรุณาทำข้อที่ผิดใหม่',
+    PASS_MSG:'ยินดีด้วย! คุณผ่านการอบรม',
+    FAIL_MSG:'ยังไม่ผ่านเกณฑ์ กรุณาทำข้อที่ผิดใหม่',
+    resCL:'ข้อถูก', resWL:'ข้อผิด', resPL:'เกณฑ์ผ่าน',
+    btnRetakeTxt:'ทำข้อที่ผิดใหม่',
     opts:['ก','ข','ค','ง'], qLbl:'ข้อที่',
-    fillInfo:'กรุณากรอกข้อมูลที่จำเป็นให้ครบ',
-    fillQuiz:'กรุณาตอบให้ครบทุกข้อ', outTxt:'ออก',
-    timerLbl:'⏱ เวลาที่ดูแล้ว', timerRemain:'เหลืออีก',
-    timerDone:'ดูครบแล้ว ✓', noVid:'ไม่พบวิดีโอ',
-    unlockTxt:'ปลดล็อกแล้ว — เริ่มทำข้อสอบได้!',
-    playHint:'▶ กดเล่นวิดีโอเพื่อเริ่มนับเวลา'
+    errFill:'กรุณากรอกข้อมูลที่มี * ให้ครบ',
+    errAns:'กรุณาตอบให้ครบทุกข้อ',
+    errSave:'เกิดข้อผิดพลาดในการบันทึก: ',
+    errPdf:'เกิดข้อผิดพลาดสร้าง PDF: ',
+    errNet:'เชื่อมต่อไม่ได้: ',
   },
-  en: {
+  en:{
+    topT:'TTM Safety Training System', loTxt:'Logout',
     sl:['Info','Video','Quiz','Result'],
     infoT:'Trainee Information', infoS:'Please fill in all required fields',
-    vidT:'Training Video', vidS:'Watch the video for the required duration',
-    vidInfoTxt:'System tracks your watch time — quiz button appears after required duration',
+    vidT:'Training Video', vidS:'Watch the video before taking the quiz',
+    vidBannerTxt:'System tracks watch time — quiz button appears after required duration',
     quizT:'Quiz', quizS:'30 Questions — Choose the correct answer',
-    btnNext:'Next: Watch Training Video', btnQuizLocked:'Watch video first',
+    resT:'Exam Result',
+    btnInfo:'Next: Watch Training Video', btnQuizLocked:'Watch video first',
     btnQuizUnlocked:'Start Quiz', btnSubTxt:'Submit Answers',
-    retakeTxt:'Retake wrong questions only', resultT:'Exam Result',
-    pdfLoadTxt:'Generating answer sheet from template...',
-    pdfReadyTxt:'Answer sheet ready!', pdfSubTxt:'Click below to download',
-    pdfDlTxt:'Download Answer Sheet PDF', btnRetakeTxt:'Retake wrong questions',
-    rRightL:'Correct', rWrongL:'Wrong', rPassL:'Pass Score',
+    unlockTxt:'Unlocked!', timerLbl:'⏱ Time watched',
+    timerRemain:'remaining', timerDone:'Complete ✓',
+    noVideo:'No video found — auto-unlocked', playHint:'▶ Press play to start timer',
+    pdfLoadTxt:'Generating answer sheet from template... (may take 20-30 sec)',
+    pdfReadyTxt:'Answer Sheet Ready!', pdfNoteTxt:'Click below to download',
+    pdfDlTxt:'Download Answer Sheet PDF',
     PASS:'PASSED ✓', FAIL:'FAILED ✗',
-    msgPass:'Congratulations! You passed the training.',
-    msgFail:'Not passed. Please retake wrong questions.',
+    PASS_MSG:'Congratulations! You passed the training.',
+    FAIL_MSG:'Not passed. Please retake wrong questions.',
+    resCL:'Correct', resWL:'Wrong', resPL:'Pass Score',
+    btnRetakeTxt:'Retake wrong questions',
     opts:['A','B','C','D'], qLbl:'Q.',
-    fillInfo:'Please fill in all required fields',
-    fillQuiz:'Please answer all questions', outTxt:'Logout',
-    timerLbl:'⏱ Time watched', timerRemain:'remaining',
-    timerDone:'Complete ✓', noVid:'No videos found',
-    unlockTxt:'Unlocked — you may start the quiz!',
-    playHint:'▶ Press play to start the timer'
+    errFill:'Please fill in all required fields (*)',
+    errAns:'Please answer all questions',
+    errSave:'Save error: ',
+    errPdf:'PDF error: ',
+    errNet:'Connection error: ',
   }
 };
+function t(k){ return TX[lang][k] || k; }
 
-function t(k) { return TX[lang][k] || ''; }
-
-// ================================================================
-// LANG
-// ================================================================
+// ────────── setLang ──────────
 function setLang(l) {
   lang = l; localStorage.setItem('ttm_lang', l);
   document.getElementById('bTH').classList.toggle('on', l==='th');
   document.getElementById('bEN').classList.toggle('on', l==='en');
-  var T = TX[l];
-  var ids = ['infoT','infoS','vidT','vidS','vidInfoTxt','quizT','quizS','btnNext','btnSubTxt',
-    'retakeTxt','resultT','pdfLoadTxt','pdfReadyTxt','pdfSubTxt','pdfDlTxt','btnRetakeTxt',
-    'rRightL','rWrongL','rPassL','timerLbl','outTxt','unlockTxt'];
-  ids.forEach(function(id) { var el=document.getElementById(id); if(el&&T[id]) el.textContent=T[id]; });
-  [0,1,2,3].forEach(function(i) {
-    document.getElementById('sl'+(i+1)).textContent = T.sl[i];
-  });
-  if (!unlocked) document.getElementById('btnQuizTxt').textContent = T.btnQuizLocked;
-  if (quizQs.length) renderQuiz();
-  updateTimerUI();
+  const ids = ['topT','loTxt','infoT','infoS','vidT','vidS','vidBannerTxt','quizT','quizS',
+    'btnInfo','btnSubTxt','unlockTxt','timerLbl','pdfLoadTxt','pdfReadyTxt','pdfNoteTxt',
+    'pdfDlTxt','btnRetakeTxt','resCL','resWL','resPL'];
+  ids.forEach(id => { const el=document.getElementById(id); if(el) el.textContent=t(id); });
+  document.getElementById('sl1').textContent = t('sl')[0];
+  document.getElementById('sl2').textContent = t('sl')[1];
+  document.getElementById('sl3').textContent = t('sl')[2];
+  document.getElementById('sl4').textContent = t('sl')[3];
+  if (unlocked) {
+    document.getElementById('btnQuizTxt').textContent = t('btnQuizUnlocked');
+  } else {
+    document.getElementById('btnQuizTxt').textContent = t('btnQuizLocked');
+  }
 }
 
-// ================================================================
-// STEPS
-// ================================================================
-function showStep(n) {
-  ['s-info','s-video','s-quiz','s-result'].forEach(function(id,i) {
-    document.getElementById(id).classList.toggle('on', i+1===n);
-  });
-  [1,2,3,4].forEach(function(i) {
-    var ico = document.getElementById('si'+i);
-    var lbl = document.getElementById('sl'+i);
-    ico.className = 'step-ico ' + (i<n?'done':i===n?'cur':'');
-    lbl.className = 'step-lbl ' + (i<n?'done':i===n?'cur':'');
-    if (i<4) document.getElementById('sc'+i).className='step-conn '+(i<n?'done':'');
-  });
+// ────────── Steps ──────────
+function showStep(name) {
+  ['info','video','quiz','result'].forEach(s => document.getElementById('sec-'+s).classList.remove('on'));
+  document.getElementById('sec-'+name).classList.add('on');
   window.scrollTo(0,0);
+  const idx = { info:1, video:2, quiz:3, result:4 }[name];
+  [1,2,3,4].forEach(i => {
+    const si = document.getElementById('si'+i), sl = document.getElementById('sl'+i);
+    si.className = 'si' + (i<idx?' done':i===idx?' on':'');
+    sl.className = 'sl' + (i<idx?' done':i===idx?' on':'');
+  });
+  [1,2,3].forEach(i => {
+    document.getElementById('sc'+i).className = 'sc' + (i<idx?' done':'');
+  });
 }
 
-// ================================================================
-// STEP 1 → 2 : ข้อมูล → วิดีโอ
-// ================================================================
+// ────────── Toast ──────────
+function toast(msg, type='success') {
+  const c = document.getElementById('tc');
+  const el = document.createElement('div');
+  el.className = 'toast-i';
+  el.style.borderLeft = '3px solid ' + (type==='error'?'#ef4444':'#22c55e');
+  el.innerHTML = '<i class="fas fa-' + (type==='error'?'exclamation-circle':'check-circle') +
+    '" style="color:'+(type==='error'?'#ef4444':'#22c55e')+'"></i>' + msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s';
+    setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+// ────────── Step 1 → 2 ──────────
 function goVideo() {
-  var name=document.getElementById('fName').value.trim(),
-      age=document.getElementById('fAge').value.trim(),
-      blood=document.getElementById('fBlood').value,
-      tel=document.getElementById('fTel').value.trim(),
-      city=document.getElementById('fCity').value.trim(),
-      comp=document.getElementById('fComp').value.trim();
-  if (!name||!age||!blood||!tel||!city||!comp) { showToast(t('fillInfo'),'err'); return; }
-  formData = { name:name, age:age, blood:blood, tel:tel, city:city, company:comp,
+  const name  = document.getElementById('fName').value.trim();
+  const age   = document.getElementById('fAge').value.trim();
+  const blood = document.getElementById('fBlood').value;
+  const tel   = document.getElementById('fTel').value.trim();
+  const city  = document.getElementById('fCity').value.trim();
+  const comp  = document.getElementById('fComp').value.trim();
+  if (!name||!age||!blood||!tel||!city||!comp) { toast(t('errFill'),'error'); return; }
+  formData = { username:sess.username||'',
+    name,age,blood,tel,city,company:comp,
     noAddress:document.getElementById('fNo').value.trim(),
     moo:document.getElementById('fMoo').value.trim(),
     road:document.getElementById('fRoad').value.trim(),
     subdistrict:document.getElementById('fSub').value.trim(),
     district:document.getElementById('fDist').value.trim(),
-    postCode:document.getElementById('fPost').value.trim(),
-    username:userData.username||'' };
-  showStep(2);
+    postCode:document.getElementById('fPost').value.trim() };
+  showStep('video');
   loadVideos();
 }
 
-// ================================================================
-// VIDEO + TIMER
-// ================================================================
+// ────────── Video + Timer ──────────
 function loadVideos() {
-  apiGetVideos().then(function(vs) {
-    if (!vs || vs.error) { unlockQuiz(); return; }
-    vs.sort(function(a,b){return a.order-b.order;});
+  apiGetVideos().then(vs => {
+    if (!vs || vs.error || !vs.length) { unlockQuiz(); document.getElementById('timerNote').textContent=t('noVideo'); return; }
+    vs.sort((a,b)=>a.order-b.order);
     videos = vs;
-    if (!vs.length) { document.getElementById('timerNote').textContent=t('noVid'); unlockQuiz(); return; }
-    buildTabs();
+    buildVidTabs();
     loadVid(0);
     if (VIDEO_UNLOCK_SECONDS <= 0) { unlockQuiz(); return; }
     startTimer();
-  }).catch(function() { unlockQuiz(); });
+  }).catch(() => unlockQuiz());
 }
-
-function buildTabs() {
-  var bar = document.getElementById('vidTabs');
+function buildVidTabs() {
+  const bar = document.getElementById('vidTabs');
   if (videos.length > 1) {
     bar.style.display = 'flex';
-    bar.innerHTML = videos.map(function(v,i) {
-      return '<button class="btn-r" id="vt'+i+'" onclick="loadVid('+i+')" style="font-size:12px;padding:7px 13px;'+(i>0?'background:rgba(192,57,43,.4);box-shadow:none;':'')+'">'+
-        (i+1)+'. '+v.title+'</button>';
-    }).join('');
+    bar.innerHTML = videos.map((v,i)=>
+      `<button onclick="loadVid(${i})" id="vt${i}"
+        style="background:${i===0?'linear-gradient(135deg,#C0392B,#922B21)':'rgba(192,57,43,.3)'};
+        border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:600;
+        padding:7px 13px;cursor:pointer;font-family:Sarabun,sans-serif">${i+1}. ${v.title}</button>`
+    ).join('');
   }
 }
-
 function loadVid(idx) {
-  videos.forEach(function(_,i){
-    var t=document.getElementById('vt'+i);
-    if(t) t.style.background=i===idx?'linear-gradient(135deg,#C0392B,#922B21)':'rgba(192,57,43,.4)';
+  videos.forEach((_,i)=>{
+    const bt=document.getElementById('vt'+i);
+    if(bt) bt.style.background=i===idx?'linear-gradient(135deg,#C0392B,#922B21)':'rgba(192,57,43,.3)';
   });
-  var url = (videos[idx]&&videos[idx].url)||'';
-  if (url && !url.includes('enablejsapi')) url+=(url.includes('?')?'&':'?')+'enablejsapi=1&rel=0';
+  let url = videos[idx].url||'';
+  if (url.includes('youtube') && !url.includes('enablejsapi')) {
+    url += (url.includes('?')?'&':'?') + 'enablejsapi=1&rel=0';
+  }
   document.getElementById('ytFrame').src = url;
   document.getElementById('timerNote').textContent = t('playHint');
 }
-
 function startTimer() {
-  if (timerTid) clearInterval(timerTid);
-  timerTid = setInterval(function() {
-    timerElapsed++;
-    updateTimerUI();
-    if (timerElapsed >= VIDEO_UNLOCK_SECONDS && !unlocked) unlockQuiz();
+  if (timerTick) clearInterval(timerTick);
+  timerTick = setInterval(() => {
+    timerEl++;
+    const pct = Math.min(100, (timerEl/VIDEO_UNLOCK_SECONDS)*100);
+    document.getElementById('timerBar').style.width = pct+'%';
+    const rem = Math.max(0, VIDEO_UNLOCK_SECONDS - timerEl);
+    const m   = Math.floor(rem/60), s = rem%60;
+    document.getElementById('timerCD').textContent =
+      rem>0 ? t('timerRemain')+' '+(m>0?m+':'+String(s).padStart(2,'0'):s+'s') : '✓';
+    if (timerEl >= VIDEO_UNLOCK_SECONDS) { clearInterval(timerTick); unlockQuiz(); }
   }, 1000);
 }
-
-function updateTimerUI() {
-  if (VIDEO_UNLOCK_SECONDS <= 0) return;
-  var pct = Math.min(100, (timerElapsed/VIDEO_UNLOCK_SECONDS)*100);
-  document.getElementById('timerBar').style.width = pct + '%';
-  var cd = document.getElementById('timerCD');
-  if (unlocked) {
-    if(cd) cd.textContent='✓';
-    document.getElementById('timerNote').textContent = t('timerDone');
-  } else {
-    var rem = Math.max(0, VIDEO_UNLOCK_SECONDS - timerElapsed);
-    var m=Math.floor(rem/60), s=rem%60;
-    if(cd) cd.textContent = t('timerRemain')+' '+(m>0?m+':'+('0'+s).slice(-2):s+'s');
-  }
-}
-
 function unlockQuiz() {
   if (unlocked) return;
   unlocked = true;
-  if (timerTid) clearInterval(timerTid);
-  document.getElementById('timerBar').style.width='100%';
+  if (timerTick) clearInterval(timerTick);
+  document.getElementById('timerBar').style.width = '100%';
   document.getElementById('timerNote').textContent = t('timerDone');
-  document.getElementById('unlockBadge').style.display='inline-flex';
+  document.getElementById('timerCD').textContent = '✓';
+  document.getElementById('unlockBadge').style.display = 'inline-flex';
   document.getElementById('unlockTxt').textContent = t('unlockTxt');
-  var btn=document.getElementById('btnQuiz');
-  btn.disabled=false;
-  document.getElementById('quizIcon').className='fas fa-unlock me-1';
+  const btn = document.getElementById('btnQuiz');
+  btn.disabled = false;
+  document.getElementById('quizIco').className = 'fas fa-unlock me-1';
   document.getElementById('btnQuizTxt').textContent = t('btnQuizUnlocked');
 }
 
-// ================================================================
-// STEP 2 → 3 : วิดีโอ → แบบทดสอบ
-// ================================================================
+// ────────── Step 2 → 3 ──────────
 function goQuiz() {
-  showStep(3);
-  if (!quizQs.length) loadQuiz();
+  showStep('quiz');
+  if (!allQ.length) buildQuiz();
   else renderQuiz();
 }
-
-// ================================================================
-// QUIZ
-// ================================================================
 function shuffle(arr) {
-  var a=[].concat(arr);
-  for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-
-function loadQuiz() {
-  document.getElementById('quizArea').innerHTML=
-    '<div style="text-align:center;padding:28px;color:var(--mt);"><span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...</div>';
-
-  Promise.all([apiGetSettings(), apiGetQuestions()]).then(function(r) {
-    var settings=r[0], qs=r[1];
-    passScore = parseInt((settings&&settings.passing_score)||27);
-    allQuestions = qs || [];
-    var pool = allQuestions.length >= 30 ? shuffle(allQuestions).slice(0,30) : shuffle(allQuestions);
-    quizQs = pool.map(function(q) {
-      return Object.assign({}, q, { shuffledOpts: shuffle([
-        {key:'1',th:q.opt1TH,en:q.opt1EN},{key:'2',th:q.opt2TH,en:q.opt2EN},
-        {key:'3',th:q.opt3TH,en:q.opt3EN},{key:'4',th:q.opt4TH,en:q.opt4EN}
-      ])});
-    });
-    isRetake=false; wrongIdx=[]; curAnswers={};
+function buildQuiz() {
+  apiGetSettings().then(cfg => { passScore = parseInt(cfg.passing_score)||27; });
+  apiGetQuestions().then(qs => {
+    allQ = qs||[];
+    const pool = shuffle(qs).slice(0,30);
+    quizQ = pool.map(q => ({
+      ...q,
+      opts: shuffle([
+        {key:'1',th:q.opt1TH,en:q.opt1EN},
+        {key:'2',th:q.opt2TH,en:q.opt2EN},
+        {key:'3',th:q.opt3TH,en:q.opt3EN},
+        {key:'4',th:q.opt4TH,en:q.opt4EN}
+      ])
+    }));
+    isRetake = false; wrongIdx = []; answers = {};
+    document.getElementById('retakeBanner').style.display='none';
     renderQuiz();
     document.getElementById('btnSubmit').style.display='inline-flex';
-    document.getElementById('retakeBand').style.display='none';
-  }).catch(function(e){
-    document.getElementById('quizArea').innerHTML='<p style="color:red;text-align:center;">โหลดข้อสอบไม่สำเร็จ: '+e.message+'</p>';
+  }).catch(e => {
+    document.getElementById('quizArea').innerHTML =
+      '<p style="color:red">โหลดข้อสอบไม่ได้: '+e.message+'</p>';
   });
 }
-
 function renderQuiz() {
-  var T=TX[lang], list=isRetake?quizQs.filter(function(_,i){return wrongIdx.indexOf(i)>=0;}):quizQs;
-  if(!list.length){document.getElementById('quizArea').innerHTML='<p style="color:var(--mt);text-align:center;">ไม่มีข้อสอบ</p>';return;}
-  document.getElementById('quizArea').innerHTML = list.map(function(q,di) {
-    var ri=isRetake?wrongIdx[di]:di;
-    return '<div class="qcard" id="qc'+ri+'">'
-      +'<div class="qno">'+T.qLbl+' '+(ri+1)+'</div>'
-      +'<div class="qtxt">'+(lang==='th'?(q.questionTH||q.questionEN):(q.questionEN||q.questionTH))+'</div>'
-      +q.shuffledOpts.map(function(opt,oi){
-        var sel=curAnswers[ri]===opt.key;
-        var txt=lang==='th'?(opt.th||opt.en):(opt.en||opt.th);
-        return '<div class="qopt'+(sel?' sel':'')+'" onclick="pick('+ri+',\''+opt.key+'\',this)">'
-          +'<div class="opt-badge">'+T.opts[oi]+'</div>'
-          +'<div class="opt-txt">'+txt+'</div></div>';
-      }).join('')+'</div>';
+  const list = isRetake ? quizQ.filter((_,i)=>wrongIdx.includes(i)) : quizQ;
+  if (!list.length) { document.getElementById('quizArea').innerHTML='<p>ไม่มีข้อสอบ</p>'; return; }
+  document.getElementById('quizArea').innerHTML = list.map((q,di) => {
+    const ri = isRetake ? wrongIdx[di] : di;
+    return `<div class="qcard" id="qc${ri}">
+      <div class="qnum">${t('qLbl')} ${ri+1}</div>
+      <div class="qtxt">${lang==='th'?(q.questionTH||q.questionEN):(q.questionEN||q.questionTH)}</div>
+      ${q.opts.map((op,oi)=>`
+        <div class="qopt${answers[ri]===op.key?' sel':''}" onclick="pickOpt(${ri},'${op.key}',this)">
+          <div class="obadge">${t('opts')[oi]}</div>
+          <div class="otxt">${lang==='th'?(op.th||op.en):(op.en||op.th)}</div>
+        </div>`).join('')}
+    </div>`;
   }).join('');
 }
-
-function pick(qi, key, el) {
-  curAnswers[qi]=key;
-  var card=document.getElementById('qc'+qi);
-  card.querySelectorAll('.qopt').forEach(function(o){o.classList.remove('sel');});
+function pickOpt(ri, key, el) {
+  answers[ri] = key;
+  document.getElementById('qc'+ri).querySelectorAll('.qopt').forEach(o=>o.classList.remove('sel'));
   el.classList.add('sel');
 }
 
-function submitQuiz() {
-  var list=isRetake?quizQs.filter(function(_,i){return wrongIdx.indexOf(i)>=0;}):quizQs;
-  var unanswered=list.filter(function(_,di){return !curAnswers[isRetake?wrongIdx[di]:di];});
-  if(unanswered.length){showToast(t('fillQuiz'),'err');return;}
+// ────────── Submit ──────────
+function doSubmit() {
+  const list = isRetake ? quizQ.filter((_,i)=>wrongIdx.includes(i)) : quizQ;
+  const unanswered = list.filter((_,di) => !answers[isRetake?wrongIdx[di]:di]);
+  if (unanswered.length) { toast(t('errAns'),'error'); return; }
 
-  var correct=0, newWrong=[];
-  quizQs.forEach(function(q,i){
-    if(curAnswers[i]===String(q.answer)) correct++; else newWrong.push(i);
+  // คำนวณคะแนน (เต็ม 30 ข้อ)
+  let correct=0; wrongIdx=[];
+  quizQ.forEach((q,i) => {
+    if (answers[i] === String(q.answer)) correct++;
+    else wrongIdx.push(i);
   });
-  score=correct; wrongIdx=newWrong;
+  score = correct;
 
-  var ansMap={};
-  quizQs.forEach(function(q,i){ansMap['ans'+(i+1)]=curAnswers[i]||'';});
+  // แสดงผล step 4
+  showStep('result');
+  const passed = score >= passScore;
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resScore').style.color = passed?'#22c55e':'#C0392B';
+  document.getElementById('resCircle').className  = 'res-circle '+(passed?'pass':'fail');
+  document.getElementById('resVerdict').textContent = t(passed?'PASS':'FAIL');
+  document.getElementById('resVerdict').style.color = passed?'#22c55e':'#C0392B';
+  document.getElementById('resMsg').textContent      = t(passed?'PASS_MSG':'FAIL_MSG');
+  document.getElementById('resHdr').style.background = passed
+    ? 'linear-gradient(135deg,#1a3a1a,#22c55e)' : 'linear-gradient(135deg,#3a1a1a,#C0392B)';
+  document.getElementById('resC').textContent = correct;
+  document.getElementById('resW').textContent = 30 - correct;
+  document.getElementById('resP').textContent = passScore;
 
-  showStep(4);
-  var T=TX[lang];
-  document.getElementById('rScore').textContent=score;
-  document.getElementById('rRight').textContent=correct;
-  document.getElementById('rWrong').textContent=30-correct;
-  document.getElementById('rPassN').textContent=passScore;
+  // ansMap
+  const ansMap = {};
+  quizQ.forEach((q,i) => { ansMap['ans'+(i+1)] = answers[i]||''; });
 
-  var pass=score>=passScore;
-  document.getElementById('rCircle').className='result-circle '+(pass?'pass':'fail');
-  document.getElementById('rScore').style.color=pass?'#28a745':'var(--red)';
-  document.getElementById('rVerdict').textContent=pass?T.PASS:T.FAIL;
-  document.getElementById('rVerdict').style.color=pass?'#28a745':'var(--red)';
-  document.getElementById('rMsg').textContent=pass?T.msgPass:T.msgFail;
-  document.getElementById('resultHead').style.background=
-    pass?'linear-gradient(135deg,#1a3a1a,#28a745)':'linear-gradient(135deg,#3a1a1a,#C0392B)';
+  if (passed) {
+    document.getElementById('pdfLoading').style.display = 'block';
+    document.getElementById('pdfBox').style.display     = 'none';
+    document.getElementById('pdfError').style.display   = 'none';
+    document.getElementById('retakeArea').style.display = 'none';
+    document.getElementById('pdfLoadTxt').textContent   = t('pdfLoadTxt');
 
-  if (pass) {
-    document.getElementById('pdfSection').style.display='block';
-    document.getElementById('pdfLoading').style.display='block';
-    document.getElementById('pdfReady').style.display='none';
-    document.getElementById('retakeSection').style.display='none';
-    // ส่งผลสอบ + สร้าง PDF
-    apiSubmitQuiz(formData, ansMap, score, 30, lang).then(function(res){
-      if(!res||!res.success){
-        document.getElementById('pdfLoadTxt').textContent='บันทึกผลไม่สำเร็จ: '+(res&&res.message||'');
+    // ✅ ส่งผลสอบ → GAS บันทึก + สร้าง PDF ใน background (trigger) → คืน queueId
+    apiSubmitQuiz(formData, ansMap, score, 30, lang).then(function(res) {
+      if (!res || !res.success) {
+        document.getElementById('pdfLoading').style.display = 'none';
+        document.getElementById('pdfError').style.display  = 'block';
+        document.getElementById('pdfError').textContent    = 'บันทึกผลไม่สำเร็จ: '+((res&&res.message)||'unknown');
         return;
       }
-      // รับ jobId → ขอ base64 PDF
-      pdfJobId=res.jobId||'';
-      fetchPdf(pdfJobId, 0);
-    }).catch(function(e){
-      document.getElementById('pdfLoadTxt').textContent='เกิดข้อผิดพลาด: '+e.message;
+      if (!res.queueId) {
+        document.getElementById('pdfLoading').style.display = 'none';
+        document.getElementById('pdfError').style.display  = 'block';
+        document.getElementById('pdfError').textContent    = 'ไม่ได้รับ queueId จาก server';
+        return;
+      }
+      // Poll PDF ทุก 8 วินาที (trigger รันทุก 1 นาที → รอสูงสุด ~90 วินาที)
+      document.getElementById('pdfLoadTxt').textContent =
+        lang==='th' ? 'กำลังสร้างกระดาษคำตอบจาก Template... (รอสักครู่ 1-2 นาที)' : 'Generating answer sheet from template... (1-2 min)';
+      pollPdf(res.queueId, 0);
+    }).catch(function(e) {
+      document.getElementById('pdfLoading').style.display = 'none';
+      document.getElementById('pdfError').style.display  = 'block';
+      document.getElementById('pdfError').textContent    = 'เกิดข้อผิดพลาด: '+e.message;
     });
 
   } else {
-    document.getElementById('pdfSection').style.display='none';
-    document.getElementById('retakeSection').style.display='block';
-    // บันทึกผล FAIL ด้วย (ไม่ต้องรอ PDF)
-    apiSubmitQuiz(formData, ansMap, score, 30, lang).catch(function(){});
+    // FAIL — บันทึกผลด้วย (ไม่สร้าง PDF)
+    apiSubmitQuiz(formData, ansMap, score, 30, lang);
+    document.getElementById('retakeArea').style.display  = 'block';
+    document.getElementById('btnRetakeTxt').textContent  = t('btnRetakeTxt');
+    document.getElementById('pdfLoading').style.display  = 'none';
+    document.getElementById('pdfBox').style.display      = 'none';
   }
 }
 
-// ================================================================
-// FETCH PDF — ขอ base64 ด้วย jobId (retry 12 ครั้ง × 10 วินาที = 2 นาที)
-// ================================================================
-function fetchPdf(jobId, attempt) {
-  if (!jobId) { showFallbackMsg('ไม่มี jobId'); return; }
-  if (attempt >= 12) { showFallbackMsg('หมดเวลาสร้าง PDF (2 นาที)'); return; }
-
-  apiGetPdf(jobId).then(function(res) {
-    if (res && res.success && res.base64) {
-      pdfBase64   = res.base64;
-      pdfFilename = res.filename || 'AnswerSheet.pdf';
-      document.getElementById('pdfLoading').style.display='none';
-      document.getElementById('pdfReady').style.display='block';
-      showToast(t('pdfReadyTxt'), 'ok');
-    } else if (res && res.error === 'not_ready') {
-      // GAS ยังสร้างไม่เสร็จ — รอแล้ว retry
-      setTimeout(function(){ fetchPdf(jobId, attempt+1); }, 10000);
-    } else {
-      showFallbackMsg((res&&res.message)||'unknown error');
-    }
-  }).catch(function(e) {
-    // network error → retry
-    setTimeout(function(){ fetchPdf(jobId, attempt+1); }, 10000);
-  });
+// ────────── Poll PDF (ถามทุก 8 วินาที สูงสุด 20 ครั้ง = 160 วินาที) ──────────
+var _pollCount = 0;
+function pollPdf(queueId, attempt) {
+  if (attempt >= 20) {
+    document.getElementById('pdfLoading').style.display = 'none';
+    document.getElementById('pdfError').style.display  = 'block';
+    document.getElementById('pdfError').textContent    =
+      lang==='th' ? 'หมดเวลารอ PDF กรุณาติดต่อผู้ดูแลระบบ' : 'PDF timeout, please contact admin';
+    return;
+  }
+  setTimeout(function() {
+    apiGetPdf(queueId).then(function(res) {
+      if (res && res.ready === true && res.base64) {
+        // ✅ PDF พร้อมแล้ว — แสดงปุ่มดาวน์โหลด
+        pdfBase64   = res.base64;
+        pdfFilename = res.filename || 'AnswerSheet.pdf';
+        document.getElementById('pdfLoading').style.display = 'none';
+        document.getElementById('pdfBox').style.display     = 'block';
+      } else if (res && res.success === false) {
+        // เกิด error ใน GAS
+        document.getElementById('pdfLoading').style.display = 'none';
+        document.getElementById('pdfError').style.display  = 'block';
+        document.getElementById('pdfError').textContent    = res.message||'PDF error';
+      } else {
+        // ready:false — ยังรอ trigger → poll ต่อ
+        var sec = (attempt+1) * 8;
+        document.getElementById('pdfLoadTxt').textContent =
+          (lang==='th'?'กำลังสร้าง PDF... (':'Generating PDF... (')+sec+lang==='th'?' วินาที)':' sec)');
+        pollPdf(queueId, attempt+1);
+      }
+    }).catch(function() {
+      // network error → retry
+      pollPdf(queueId, attempt+1);
+    });
+  }, 8000); // รอ 8 วินาทีแล้วถามใหม่
 }
 
-function showFallbackMsg(reason) {
-  document.getElementById('pdfLoadTxt').textContent='สร้าง PDF ไม่สำเร็จ: '+reason;
-}
-
-// ================================================================
-// DOWNLOAD PDF จาก base64
-// ================================================================
+// ────────── Download PDF ──────────
 function downloadPdf() {
-  if (!pdfBase64) { showToast('PDF ยังไม่พร้อม','err'); return; }
-  var bytes = atob(pdfBase64);
-  var arr   = new Uint8Array(bytes.length);
-  for(var i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
-  var blob  = new Blob([arr],{type:'application/pdf'});
-  var url   = URL.createObjectURL(blob);
-  var a     = document.createElement('a');
+  if (!pdfBase64) { toast('PDF not ready','error'); return; }
+  const bytes = atob(pdfBase64);
+  const arr   = new Uint8Array(bytes.length);
+  for (let i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
+  const blob = new Blob([arr],{type:'application/pdf'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
   a.href=url; a.download=pdfFilename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(function(){URL.revokeObjectURL(url);},5000);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
 }
 
-// ================================================================
-// RETAKE
-// ================================================================
-function retakeQuiz() {
-  if(!wrongIdx.length){showToast('ไม่มีข้อที่ผิด','ok');return;}
-  isRetake=true;
-  showStep(3);
-  document.getElementById('retakeBand').style.display='block';
-  document.getElementById('retakeTxt').textContent=
-    lang==='th'?'ทำเฉพาะข้อที่ผิด ('+wrongIdx.length+' ข้อ)':'Retake '+wrongIdx.length+' wrong questions';
+// ────────── Retake ──────────
+function doRetake() {
+  if (!wrongIdx.length) return;
+  isRetake = true;
+  showStep('quiz');
+  document.getElementById('retakeBanner').style.display='block';
+  document.getElementById('retakeBanner').textContent =
+    (lang==='th'?'ทำเฉพาะข้อที่ผิด (':'Retaking wrong questions (') + wrongIdx.length + (lang==='th'?' ข้อ)':' questions)');
   document.getElementById('btnSubmit').style.display='inline-flex';
   renderQuiz();
 }
 
-// ================================================================
-// LOGOUT
-// ================================================================
-function doLogout() {
-  apiLogout().finally(function(){ window.location.href='index.html'; });
+// ────────── Logout ──────────
+async function doLogout() {
+  await apiLogout();
+  window.location.href = 'index.html';
 }
 
-// ================================================================
-// TOAST
-// ================================================================
-function showToast(msg, type) {
-  var c=document.getElementById('tc');
-  var el=document.createElement('div');
-  el.className='toast-i '+(type==='ok'?'ti-ok':'ti-err');
-  el.innerHTML='<i class="fas fa-'+(type==='ok'?'check':'exclamation')+'-circle"></i> '+msg;
-  c.appendChild(el);
-  setTimeout(function(){el.style.opacity='0';el.style.transition='opacity .3s';
-    setTimeout(function(){el.remove();},300);},3500);
-}
-
-// ================================================================
-// INIT
-// ================================================================
-window.addEventListener('load', function() {
-  var s=getSession();
-  if (s&&s.token) userData=s;
-  setLang(userData.lang||localStorage.getItem('ttm_lang')||'th');
+// ────────── Init ──────────
+window.addEventListener('load', () => {
+  sess = getSession() || {};
+  if (!sess.token) { window.location.href='index.html'; return; }
+  setLang(sess.lang || localStorage.getItem('ttm_lang') || 'th');
 });
 </script>
 </body>
