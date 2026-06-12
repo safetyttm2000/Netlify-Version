@@ -1,1427 +1,762 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TTM - การอบรมความปลอดภัย</title>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TTM - การอบรม</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-<!-- jsPDF สำหรับสร้าง PDF ฝั่ง browser โดยไม่ต้องพึ่ง Google Drive -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-/* ============================================================
-   ✅ CONFIG — ผู้เขียนโค้ดแก้ไขได้ที่นี่
-   VIDEO_UNLOCK_SECONDS = จำนวนวินาทีที่ต้องดูวิดีโอก่อนปุ่มจะแสดง
-   ตั้งค่าต่อวิดีโอ (หากมีหลายคลิปจะรวมทุกคลิป)
-   ============================================================ */
-/*  ← ดูใน <script> ด้านล่าง หัวข้อ CONFIG  */
-
-:root {
-  --ttm-red:#C0392B; --ttm-dark:#1A1A2E;
-  --ttm-gold:#D4AC0D; --ttm-light:#F5F6FA;
-  --ttm-card:#ffffff; --ttm-border:#E2E8F0;
-  --ttm-text:#1E293B; --ttm-muted:#64748B;
-  --ttm-accent:#EFF6FF;
-}
-* { font-family:'Sarabun',sans-serif; box-sizing:border-box; }
-body { background:var(--ttm-light); color:var(--ttm-text); margin:0; min-height:100vh; }
-
-/* ---- Topbar ---- */
-.topbar {
-  background:linear-gradient(135deg,#1A1A2E 0%,#C0392B 100%);
-  padding:12px 24px; display:flex; align-items:center; justify-content:space-between;
-  position:sticky; top:0; z-index:100; box-shadow:0 2px 16px rgba(0,0,0,.3);
-}
-.topbar-logo { display:flex; align-items:center; gap:12px; }
-.topbar-logo img { height:36px; }
-.topbar-logo-text { color:#fff; font-size:13px; font-weight:700; line-height:1.35; }
-.topbar-right { display:flex; align-items:center; gap:10px; }
-.lang-pill { display:flex; background:rgba(255,255,255,.15); border-radius:8px; overflow:hidden; }
-.lang-pill-btn {
-  background:none; border:none; color:rgba(255,255,255,.7);
-  font-size:12px; font-weight:600; padding:6px 12px; cursor:pointer;
-  transition:all .2s; font-family:'Sarabun',sans-serif;
-}
-.lang-pill-btn.active { background:rgba(255,255,255,.25); color:#fff; }
-.btn-logout-top {
-  background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.25);
-  border-radius:8px; color:#fff; font-size:12px; padding:6px 14px;
-  cursor:pointer; font-family:'Sarabun',sans-serif; transition:all .2s;
-}
-.btn-logout-top:hover { background:rgba(255,255,255,.25); }
-
-/* ---- Steps ---- */
-.steps-bar {
-  background:var(--ttm-card); border-bottom:1px solid var(--ttm-border);
-  padding:14px 24px; overflow-x:auto;
-}
-.steps-inner {
-  display:flex; align-items:center; min-width:fit-content;
-  margin:0 auto; max-width:700px;
-}
-.step-wrapper { display:flex; flex-direction:column; align-items:center; }
-.step-icon {
-  width:38px; height:38px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:15px; font-weight:700; flex-shrink:0; transition:all .4s;
-  background:var(--ttm-border); color:var(--ttm-muted); border:2px solid var(--ttm-border);
-}
-.step-icon.done   { background:#28a745; border-color:#28a745; color:#fff; }
-.step-icon.active { background:var(--ttm-red); border-color:var(--ttm-red); color:#fff;
-                    box-shadow:0 0 0 4px rgba(192,57,43,.2); }
-.step-label       { font-size:11px; font-weight:600; color:var(--ttm-muted); margin-top:4px; white-space:nowrap; }
-.step-label.active{ color:var(--ttm-red); }
-.step-label.done  { color:#28a745; }
-.step-connector   { flex:1; height:2px; background:var(--ttm-border); transition:background .4s; }
-.step-connector.done { background:#28a745; }
-
-/* ---- Content ---- */
-.content-wrap { max-width:900px; margin:0 auto; padding:28px 16px; }
-.card-section {
-  background:var(--ttm-card); border:1px solid var(--ttm-border); border-radius:16px;
-  overflow:hidden; box-shadow:0 2px 16px rgba(0,0,0,.06);
-  animation:fadeSlide .5s ease both;
-}
-@keyframes fadeSlide{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
-
-.card-header-ttm {
-  background:linear-gradient(135deg,#1A1A2E,#2D3561);
-  padding:20px 28px; display:flex; align-items:center; gap:14px;
-}
-.card-header-icon { font-size:22px; color:var(--ttm-gold); }
-.card-header-title{ color:#fff; font-size:18px; font-weight:700; }
-.card-header-sub  { color:rgba(255,255,255,.55); font-size:13px; }
-.card-body-ttm    { padding:28px; }
-
-/* ---- Form ---- */
-.form-row-ttm { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-@media(max-width:600px){ .form-row-ttm{ grid-template-columns:1fr; } }
-.form-group-ttm label {
-  font-size:13px; font-weight:600; color:var(--ttm-muted); margin-bottom:6px; display:block;
-}
-.form-group-ttm label .req { color:var(--ttm-red); }
-.form-control-ttm, .form-select-ttm {
-  width:100%; border:1.5px solid var(--ttm-border); border-radius:10px;
-  padding:11px 14px; font-size:14px; color:var(--ttm-text);
-  transition:all .2s; font-family:'Sarabun',sans-serif; background:var(--ttm-light);
-}
-.form-control-ttm:focus, .form-select-ttm:focus {
-  outline:none; border-color:var(--ttm-red); background:#fff;
-  box-shadow:0 0 0 3px rgba(192,57,43,.1);
-}
-.form-control-ttm::placeholder { color:#CBD5E1; }
-
-/* ---- Buttons ---- */
-.btn-ttm-primary {
-  background:linear-gradient(135deg,var(--ttm-red),#922B21);
-  border:none; border-radius:12px; color:#fff; font-size:15px; font-weight:700;
-  padding:13px 32px; cursor:pointer; transition:all .3s;
-  font-family:'Sarabun',sans-serif;
-  display:inline-flex; align-items:center; gap:8px;
-}
-.btn-ttm-primary:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(192,57,43,.4); }
-.btn-ttm-primary:disabled{ opacity:.45; cursor:not-allowed; transform:none; box-shadow:none; }
-.btn-ttm-success {
-  background:linear-gradient(135deg,#28a745,#1e7e34);
-  border:none; border-radius:12px; color:#fff; font-size:15px; font-weight:700;
-  padding:13px 32px; cursor:pointer; transition:all .3s;
-  font-family:'Sarabun',sans-serif;
-  display:inline-flex; align-items:center; gap:8px;
-}
-.btn-ttm-success:hover{ transform:translateY(-2px); box-shadow:0 8px 24px rgba(40,167,69,.4); }
-
-/* ---- Video ---- */
-.video-container {
-  position:relative; width:100%; padding-top:56.25%;
-  background:#000; border-radius:12px; overflow:hidden;
-}
-.video-container iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
-
-/* Timer progress */
-.timer-bar-wrap {
-  background:#E2E8F0; border-radius:99px; height:8px; margin:14px 0 4px; overflow:hidden;
-}
-.timer-bar-fill {
-  height:100%; border-radius:99px; transition:width 1s linear;
-  background:linear-gradient(90deg,var(--ttm-gold),#F97316);
-}
-.timer-info {
-  display:flex; align-items:center; justify-content:space-between;
-  font-size:13px; color:var(--ttm-muted);
-}
-.unlock-badge {
-  display:inline-flex; align-items:center; gap:6px;
-  background:rgba(40,167,69,.12); border:1px solid rgba(40,167,69,.3);
-  border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; color:#16A34A;
-}
-
-/* ---- Quiz ---- */
-.q-card {
-  border:1.5px solid var(--ttm-border); border-radius:12px; padding:20px;
-  margin-bottom:16px; background:#fff;
-}
-.q-number { font-size:12px; font-weight:700; color:var(--ttm-muted);
-            text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
-.q-text   { font-size:15px; font-weight:600; line-height:1.6; margin-bottom:14px; }
-.q-option {
-  display:flex; align-items:flex-start; gap:12px; padding:10px 14px;
-  border:1.5px solid var(--ttm-border); border-radius:10px; cursor:pointer;
-  transition:all .2s; margin-bottom:8px; background:var(--ttm-light);
-}
-.q-option:hover   { border-color:var(--ttm-red); background:rgba(192,57,43,.04); }
-.q-option.selected{ border-color:var(--ttm-red); background:rgba(192,57,43,.08); }
-.q-option.correct { border-color:#28a745; background:rgba(40,167,69,.08); }
-.q-option.wrong   { border-color:var(--ttm-red); background:rgba(192,57,43,.08); }
-.opt-badge {
-  width:28px; height:28px; border-radius:8px; background:var(--ttm-border);
-  display:flex; align-items:center; justify-content:center;
-  font-weight:700; font-size:13px; flex-shrink:0; transition:all .2s;
-}
-.q-option.selected .opt-badge { background:var(--ttm-red); color:#fff; }
-.q-option.correct  .opt-badge { background:#28a745; color:#fff; }
-.q-option.wrong    .opt-badge { background:var(--ttm-red); color:#fff; }
-.opt-text { font-size:14px; padding-top:4px; line-height:1.5; }
-
-/* ---- Result ---- */
-.result-circle {
-  width:140px; height:140px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center; flex-direction:column;
-  margin:0 auto 20px;
-}
-.result-circle.pass{ background:radial-gradient(circle,rgba(40,167,69,.2),rgba(40,167,69,.05)); border:4px solid #28a745; }
-.result-circle.fail{ background:radial-gradient(circle,rgba(192,57,43,.2),rgba(192,57,43,.05)); border:4px solid var(--ttm-red); }
-.result-score{ font-size:40px; font-weight:800; line-height:1; }
-.result-total{ font-size:14px; color:var(--ttm-muted); }
-.score-breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:20px 0; }
-.score-stat { background:var(--ttm-light); border-radius:10px; padding:14px; text-align:center; }
-.score-stat-num{ font-size:24px; font-weight:800; }
-.score-stat-lbl{ font-size:12px; color:var(--ttm-muted); }
-
-/* ---- Banners ---- */
-.info-banner {
-  background:var(--ttm-accent); border:1px solid #BFDBFE; border-radius:10px;
-  padding:12px 16px; font-size:13px; color:#1D4ED8; margin-bottom:18px;
-}
-.retake-banner {
-  background:rgba(212,172,13,.1); border:1px solid rgba(212,172,13,.3);
-  border-radius:10px; padding:12px 16px; font-size:13px; color:#92640D; margin-bottom:18px;
-}
-
-/* ---- PDF section ---- */
-.pdf-box {
-  background:#F0FDF4; border:1px solid #86EFAC; border-radius:12px;
-  padding:22px; margin-top:20px; text-align:center;
-}
-
-/* ---- Toast ---- */
-.toast-container-ttm {
-  position:fixed; bottom:24px; right:24px; z-index:9999;
-  display:flex; flex-direction:column; gap:8px;
-}
-.toast-ttm {
-  background:#1E293B; color:#fff; border-radius:12px;
-  padding:14px 18px; font-size:14px; min-width:260px;
-  display:flex; align-items:center; gap:10px;
-  box-shadow:0 8px 24px rgba(0,0,0,.3);
-  animation:slideInToast .3s ease;
-}
-@keyframes slideInToast{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
-
-/* ---- Sections ---- */
-.section { display:none; }
-.section.active { display:block; }
-
-/* Address block */
-.addr-block {
-  background:var(--ttm-light); border-radius:10px; padding:16px; margin-bottom:16px;
-}
-.addr-block-title {
-  font-size:13px; font-weight:700; color:var(--ttm-muted); margin-bottom:12px;
-}
+/* ──────────── CONFIG ────────────
+   VIDEO_UNLOCK_SECONDS = วินาทีที่ต้องดูวิดีโอก่อนทำแบบทดสอบ (0 = ไม่บังคับ)
+   แก้ใน <script> ด้านล่าง หัวข้อ CONFIG
+   ──────────────────────────────── */
+:root{--red:#C0392B;--dred:#922B21;--gold:#D4AC0D;
+      --card:#fff;--bg:#F5F6FA;--border:#E2E8F0;--text:#1E293B;--muted:#64748B}
+*{font-family:'Sarabun',sans-serif;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);margin:0;min-height:100vh}
+/* Topbar */
+.topbar{background:linear-gradient(135deg,#1A1A2E,#C0392B);padding:11px 20px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.topbar-logo{display:flex;align-items:center;gap:10px}
+.topbar-logo img{height:34px}
+.topbar-title{color:#fff;font-size:13px;font-weight:700;line-height:1.3}
+.topbar-r{display:flex;align-items:center;gap:8px}
+.lang-row{display:flex;background:rgba(255,255,255,.12);border-radius:7px;overflow:hidden}
+.lb{background:none;border:none;color:rgba(255,255,255,.6);font-size:12px;font-weight:600;
+  padding:5px 11px;cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .2s}
+.lb.on{background:rgba(255,255,255,.25);color:#fff}
+.btn-lo{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
+  border-radius:7px;color:#fff;font-size:12px;padding:5px 12px;cursor:pointer;
+  font-family:'Sarabun',sans-serif}
+/* Steps */
+.steps-bar{background:#fff;border-bottom:1px solid var(--border);
+  padding:12px 20px;overflow-x:auto}
+.steps{display:flex;align-items:center;max-width:660px;margin:0 auto;min-width:fit-content}
+.si{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:700;flex-shrink:0;transition:all .3s;
+  background:var(--border);color:var(--muted);border:2px solid var(--border)}
+.si.on{background:var(--red);border-color:var(--red);color:#fff;box-shadow:0 0 0 4px rgba(192,57,43,.15)}
+.si.done{background:#22c55e;border-color:#22c55e;color:#fff}
+.sl{font-size:11px;font-weight:600;color:var(--muted);margin-top:3px;white-space:nowrap}
+.sl.on{color:var(--red)}.sl.done{color:#22c55e}
+.sc{flex:1;height:2px;background:var(--border);transition:background .3s}
+.sc.done{background:#22c55e}
+/* Content */
+.wrap{max-width:860px;margin:0 auto;padding:22px 14px}
+.section{display:none}.section.on{display:block}
+/* Card */
+.card-ttm{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.05);
+  animation:fsin .4s ease both}
+@keyframes fsin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.ch{background:linear-gradient(135deg,#1A1A2E,#2D3561);padding:18px 24px;
+  display:flex;align-items:center;gap:12px}
+.ch-ico{font-size:20px;color:var(--gold)}
+.ch-t{color:#fff;font-size:16px;font-weight:700}
+.ch-s{color:rgba(255,255,255,.5);font-size:12px}
+.cb{padding:24px}
+/* Form */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:560px){.frow{grid-template-columns:1fr}}
+.fg label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;display:block}
+.fg label .req{color:var(--red)}
+.fc,.fs{width:100%;border:1.5px solid var(--border);border-radius:9px;
+  padding:10px 13px;font-size:14px;color:var(--text);
+  font-family:'Sarabun',sans-serif;background:var(--bg);transition:all .2s}
+.fc:focus,.fs:focus{outline:none;border-color:var(--red);background:#fff;
+  box-shadow:0 0 0 3px rgba(192,57,43,.1)}
+.fc::placeholder{color:#CBD5E1}
+.addr-box{background:var(--bg);border-radius:9px;padding:14px;margin-bottom:14px}
+.addr-box-t{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px}
+/* Buttons */
+.btn-p{background:linear-gradient(135deg,var(--red),var(--dred));border:none;
+  border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:11px 26px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .3s;
+  display:inline-flex;align-items:center;gap:7px}
+.btn-p:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 20px rgba(192,57,43,.35)}
+.btn-p:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-g{background:linear-gradient(135deg,#16a34a,#15803d);border:none;
+  border-radius:9px;color:#fff;font-size:14px;font-weight:700;padding:11px 26px;
+  cursor:pointer;font-family:'Sarabun',sans-serif;transition:all .3s;
+  display:inline-flex;align-items:center;gap:7px}
+.btn-g:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(22,163,74,.35)}
+/* Video */
+.vid-wrap{position:relative;width:100%;padding-top:56.25%;border-radius:10px;overflow:hidden;background:#000}
+.vid-wrap iframe{position:absolute;inset:0;width:100%;height:100%;border:none}
+.timer-wrap{margin-top:14px}
+.timer-bar-bg{background:#E2E8F0;border-radius:99px;height:7px;overflow:hidden}
+.timer-bar{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#f97316);
+  transition:width 1s linear;width:0%}
+.timer-info{display:flex;justify-content:space-between;font-size:12px;
+  color:var(--muted);margin-top:4px}
+.unlock-badge{display:inline-flex;align-items:center;gap:6px;
+  background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);
+  border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;color:#16a34a}
+/* Quiz */
+.qcard{border:1.5px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;background:#fff}
+.qnum{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.qtxt{font-size:14px;font-weight:600;line-height:1.6;margin-bottom:12px}
+.qopt{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;
+  border:1.5px solid var(--border);border-radius:8px;cursor:pointer;
+  transition:all .2s;margin-bottom:7px;background:var(--bg)}
+.qopt:hover{border-color:var(--red);background:rgba(192,57,43,.03)}
+.qopt.sel{border-color:var(--red);background:rgba(192,57,43,.07)}
+.obadge{width:26px;height:26px;border-radius:7px;background:var(--border);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;
+  flex-shrink:0;transition:all .2s;color:var(--muted)}
+.qopt.sel .obadge{background:var(--red);color:#fff}
+.otxt{font-size:13px;padding-top:3px;line-height:1.5}
+/* Result */
+.res-circle{width:130px;height:130px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 18px}
+.res-circle.pass{background:rgba(22,163,74,.1);border:4px solid #22c55e}
+.res-circle.fail{background:rgba(192,57,43,.1);border:4px solid var(--red)}
+.res-score{font-size:38px;font-weight:800;line-height:1}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.sg{background:var(--bg);border-radius:9px;padding:12px;text-align:center}
+.sg-n{font-size:22px;font-weight:800}
+.sg-l{font-size:11px;color:var(--muted)}
+/* PDF box */
+.pdf-box{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;
+  padding:22px;text-align:center;margin-top:18px}
+/* Info banner */
+.info-banner{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;
+  padding:10px 14px;font-size:12px;color:#1D4ED8;margin-bottom:14px}
+/* Toast */
+.tc{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:6px}
+.toast-i{background:#1E293B;color:#fff;border-radius:10px;padding:12px 15px;font-size:13px;
+  min-width:240px;display:flex;align-items:center;gap:8px;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);animation:tin .25s ease}
+@keyframes tin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+.retake-banner{background:rgba(212,172,13,.1);border:1px solid rgba(212,172,13,.3);
+  border-radius:8px;padding:10px 14px;font-size:13px;color:#92640D;margin-bottom:14px;display:none}
 </style>
 </head>
 <body>
-
-<!-- ======== TOPBAR ======== -->
+<!-- Topbar -->
 <div class="topbar">
   <div class="topbar-logo">
-    <img src="https://ttm-jda.com/themes/default/images/all/logo/pic_logo.png" alt="TTM"
-         onerror="this.style.display='none'">
-    <div class="topbar-logo-text" id="topTitle">ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM</div>
+    <img src="https://ttm-jda.com/themes/default/images/all/logo/pic_logo.png" onerror="this.style.display='none'" alt="TTM">
+    <div class="topbar-title" id="topT">ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM</div>
   </div>
-  <div class="topbar-right">
-    <div class="lang-pill">
-      <button class="lang-pill-btn active" onclick="setLang('th')" id="btnTH">🇹🇭 TH</button>
-      <button class="lang-pill-btn" onclick="setLang('en')" id="btnEN">🇺🇸 EN</button>
+  <div class="topbar-r">
+    <div class="lang-row">
+      <button class="lb on" onclick="setLang('th')" id="bTH">🇹🇭</button>
+      <button class="lb"    onclick="setLang('en')" id="bEN">🇺🇸</button>
     </div>
-    <button class="btn-logout-top" onclick="doLogout()">
-      <i class="fas fa-sign-out-alt me-1"></i><span id="logoutTxt">ออกจากระบบ</span>
-    </button>
+    <button class="btn-lo" onclick="doLogout()"><i class="fas fa-sign-out-alt me-1"></i><span id="loTxt">ออก</span></button>
   </div>
 </div>
 
-<!-- ======== STEPS ======== -->
+<!-- Steps -->
 <div class="steps-bar">
-  <div class="steps-inner">
-    <div class="step-wrapper">
-      <div class="step-icon active" id="si-1"><i class="fas fa-user"></i></div>
-      <div class="step-label active" id="sl-1">ข้อมูล</div>
+  <div class="steps">
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si on" id="si1"><i class="fas fa-user"></i></div>
+      <div class="sl on" id="sl1">ข้อมูล</div>
     </div>
-    <div class="step-connector" id="sc-1"></div>
-    <div class="step-wrapper">
-      <div class="step-icon" id="si-2"><i class="fab fa-youtube"></i></div>
-      <div class="step-label" id="sl-2">วิดีโอ</div>
+    <div class="sc" id="sc1"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si2"><i class="fab fa-youtube"></i></div>
+      <div class="sl" id="sl2">วิดีโอ</div>
     </div>
-    <div class="step-connector" id="sc-2"></div>
-    <div class="step-wrapper">
-      <div class="step-icon" id="si-3"><i class="fas fa-pencil-alt"></i></div>
-      <div class="step-label" id="sl-3">แบบทดสอบ</div>
+    <div class="sc" id="sc2"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si3"><i class="fas fa-pencil-alt"></i></div>
+      <div class="sl" id="sl3">แบบทดสอบ</div>
     </div>
-    <div class="step-connector" id="sc-3"></div>
-    <div class="step-wrapper">
-      <div class="step-icon" id="si-4"><i class="fas fa-trophy"></i></div>
-      <div class="step-label" id="sl-4">ผลลัพธ์</div>
+    <div class="sc" id="sc3"></div>
+    <div style="display:flex;flex-direction:column;align-items:center">
+      <div class="si" id="si4"><i class="fas fa-trophy"></i></div>
+      <div class="sl" id="sl4">ผลลัพธ์</div>
     </div>
   </div>
 </div>
 
-<!-- ======== CONTENT ======== -->
-<div class="content-wrap">
-
-  <!-- ===== STEP 1 : ข้อมูลผู้เข้าอบรม ===== -->
-  <div class="section active" id="sec-info">
-    <div class="card-section">
-      <div class="card-header-ttm">
-        <div class="card-header-icon"><i class="fas fa-id-card"></i></div>
-        <div>
-          <div class="card-header-title" id="info-title">ข้อมูลผู้เข้าอบรม</div>
-          <div class="card-header-sub"   id="info-sub">กรุณากรอกข้อมูลให้ครบถ้วนก่อนเริ่มอบรม</div>
-        </div>
+<div class="wrap">
+<!-- ─── STEP 1: ข้อมูล ─── -->
+<div class="section on" id="sec-info">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fas fa-id-card"></i></div>
+    <div><div class="ch-t" id="infoT">ข้อมูลผู้เข้าอบรม</div>
+         <div class="ch-s" id="infoS">กรุณากรอกข้อมูลให้ครบถ้วน</div></div></div>
+  <div class="cb">
+    <div class="frow">
+      <div class="fg"><label id="lName">ชื่อ-นามสกุล <span class="req">*</span></label>
+        <input class="fc" type="text" id="fName" placeholder="ชื่อ-นามสกุล"></div>
+      <div class="fg"><label id="lAge">อายุ <span class="req">*</span></label>
+        <input class="fc" type="number" id="fAge" placeholder="อายุ" min="15" max="80"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label id="lBlood">กรุ๊ปเลือด <span class="req">*</span></label>
+        <select class="fc fs" id="fBlood">
+          <option value="">— เลือก —</option>
+          <option>O</option><option>A</option><option>B</option><option>AB</option>
+        </select></div>
+      <div class="fg"><label id="lTel">เบอร์โทร <span class="req">*</span></label>
+        <input class="fc" type="tel" id="fTel" placeholder="0XX-XXXXXXX"></div>
+    </div>
+    <div class="addr-box">
+      <div class="addr-box-t" id="lAddr"><i class="fas fa-map-marker-alt me-1"></i>ที่อยู่</div>
+      <div class="frow">
+        <div class="fg"><label id="lNo">บ้านเลขที่</label><input class="fc" id="fNo" placeholder="บ้านเลขที่"></div>
+        <div class="fg"><label id="lMoo">หมู่</label><input class="fc" id="fMoo" placeholder="หมู่ที่"></div>
       </div>
-      <div class="card-body-ttm">
-
-        <div class="form-row-ttm">
-          <div class="form-group-ttm">
-            <label id="lbl-fname"><i class="fas fa-user me-1" style="color:var(--ttm-muted)"></i>
-              ชื่อ-นามสกุล <span class="req">*</span></label>
-            <input type="text" class="form-control-ttm" id="f-name" placeholder="กรอกชื่อ-นามสกุล">
-          </div>
-          <div class="form-group-ttm">
-            <label id="lbl-fage"><i class="fas fa-birthday-cake me-1" style="color:var(--ttm-muted)"></i>
-              อายุ <span class="req">*</span></label>
-            <input type="number" class="form-control-ttm" id="f-age" placeholder="อายุ (ปี)" min="15" max="80">
-          </div>
-        </div>
-
-        <div class="form-row-ttm">
-          <div class="form-group-ttm">
-            <label id="lbl-fblood"><i class="fas fa-tint me-1" style="color:var(--ttm-muted)"></i>
-              กรุ๊ปเลือด <span class="req">*</span></label>
-            <select class="form-select-ttm" id="f-blood">
-              <option value="">— เลือกกรุ๊ปเลือด —</option>
-              <option value="O">O</option><option value="A">A</option>
-              <option value="B">B</option><option value="AB">AB</option>
-            </select>
-          </div>
-          <div class="form-group-ttm">
-            <label id="lbl-ftel"><i class="fas fa-phone me-1" style="color:var(--ttm-muted)"></i>
-              เบอร์โทรศัพท์ <span class="req">*</span></label>
-            <input type="tel" class="form-control-ttm" id="f-tel" placeholder="0XX-XXXXXXX">
-          </div>
-        </div>
-
-        <!-- ที่อยู่ -->
-        <div class="addr-block">
-          <div class="addr-block-title" id="lbl-addr">
-            <i class="fas fa-map-marker-alt me-1"></i>ที่อยู่
-          </div>
-          <div class="form-row-ttm">
-            <div class="form-group-ttm">
-              <label id="lbl-fno">บ้านเลขที่</label>
-              <input type="text" class="form-control-ttm" id="f-no" placeholder="เช่น 123/4">
-            </div>
-            <div class="form-group-ttm">
-              <label id="lbl-fmoo">หมู่</label>
-              <input type="text" class="form-control-ttm" id="f-moo" placeholder="หมู่ที่">
-            </div>
-          </div>
-          <div class="form-row-ttm">
-            <div class="form-group-ttm">
-              <label id="lbl-froad">ถนน</label>
-              <input type="text" class="form-control-ttm" id="f-road" placeholder="ถนน">
-            </div>
-            <div class="form-group-ttm">
-              <label id="lbl-fsub">แขวง/ตำบล</label>
-              <input type="text" class="form-control-ttm" id="f-sub" placeholder="แขวง/ตำบล">
-            </div>
-          </div>
-          <div class="form-row-ttm">
-            <div class="form-group-ttm">
-              <label id="lbl-fdist">เขต/อำเภอ</label>
-              <input type="text" class="form-control-ttm" id="f-dist" placeholder="เขต/อำเภอ">
-            </div>
-            <div class="form-group-ttm">
-              <label id="lbl-fcity">จังหวัด <span class="req">*</span></label>
-              <input type="text" class="form-control-ttm" id="f-city" placeholder="จังหวัด">
-            </div>
-          </div>
-          <div class="form-row-ttm">
-            <div class="form-group-ttm">
-              <label id="lbl-fpost">รหัสไปรษณีย์</label>
-              <input type="text" class="form-control-ttm" id="f-post" placeholder="XXXXX" maxlength="5">
-            </div>
-            <div class="form-group-ttm"></div>
-          </div>
-        </div>
-
-        <div class="form-row-ttm">
-          <div class="form-group-ttm">
-            <label id="lbl-fcomp"><i class="fas fa-building me-1" style="color:var(--ttm-muted)"></i>
-              สังกัดบริษัท <span class="req">*</span></label>
-            <input type="text" class="form-control-ttm" id="f-company" placeholder="ชื่อบริษัท">
-          </div>
-        </div>
-
-        <div class="text-end mt-3">
-          <button class="btn-ttm-primary" onclick="goToVideo()">
-            <span id="btn-next-info">ถัดไป: ดูวิดีโออบรม</span>
-            <i class="fas fa-arrow-right"></i>
-          </button>
-        </div>
+      <div class="frow">
+        <div class="fg"><label id="lRoad">ถนน</label><input class="fc" id="fRoad" placeholder="ถนน"></div>
+        <div class="fg"><label id="lSub">แขวง/ตำบล</label><input class="fc" id="fSub" placeholder="แขวง/ตำบล"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label id="lDist">เขต/อำเภอ</label><input class="fc" id="fDist" placeholder="เขต/อำเภอ"></div>
+        <div class="fg"><label id="lCity">จังหวัด <span class="req">*</span></label><input class="fc" id="fCity" placeholder="จังหวัด"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label id="lPost">รหัสไปรษณีย์</label><input class="fc" id="fPost" placeholder="XXXXX" maxlength="5"></div>
+        <div class="fg"></div>
       </div>
     </div>
-  </div><!-- /sec-info -->
-
-  <!-- ===== STEP 2 : วิดีโอ ===== -->
-  <div class="section" id="sec-video">
-    <div class="card-section">
-      <div class="card-header-ttm">
-        <div class="card-header-icon"><i class="fab fa-youtube"></i></div>
-        <div>
-          <div class="card-header-title" id="vid-title">วิดีโอการอบรม</div>
-          <div class="card-header-sub"   id="vid-sub">กรุณาดูวิดีโอให้ครบเวลาก่อนทำแบบทดสอบ</div>
-        </div>
-      </div>
-      <div class="card-body-ttm">
-
-        <div class="info-banner" id="vid-info-banner">
-          <i class="fas fa-info-circle me-2"></i>
-          <span id="vid-info-txt">ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด</span>
-        </div>
-
-        <!-- Video tabs (กรณีหลายคลิป) -->
-        <div id="videoTabsBar" style="display:none;margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap;"></div>
-
-        <!-- Video iframe -->
-        <div class="video-container" id="videoWrap">
-          <iframe id="ytFrame" src="" allowfullscreen
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-          </iframe>
-        </div>
-
-        <!-- Timer progress bar -->
-        <div style="margin-top:18px;">
-          <div class="timer-info">
-            <span id="timerLabel">⏱ เวลาที่ดูแล้ว</span>
-            <span id="timerCountdown"></span>
-          </div>
-          <div class="timer-bar-wrap">
-            <div class="timer-bar-fill" id="timerBarFill" style="width:0%"></div>
-          </div>
-          <div style="font-size:12px;color:var(--ttm-muted);margin-top:4px;" id="timerNote">
-            <!-- แสดงสถานะ -->
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:20px;">
-          <div id="unlockBadge" class="unlock-badge" style="display:none;margin-right:auto;">
-            <i class="fas fa-unlock-alt"></i><span id="unlockBadgeTxt">ปลดล็อกแล้ว!</span>
-          </div>
-          <button class="btn-ttm-primary" id="btn-to-quiz" onclick="goToQuiz()" disabled>
-            <i class="fas fa-lock me-1" id="quizBtnIcon"></i>
-            <span id="btn-to-quiz-txt">ดูวิดีโอให้ครบก่อน</span>
-          </button>
-        </div>
-      </div>
+    <div class="frow">
+      <div class="fg"><label id="lComp">สังกัดบริษัท <span class="req">*</span></label>
+        <input class="fc" id="fComp" placeholder="ชื่อบริษัท"></div>
     </div>
-  </div><!-- /sec-video -->
-
-  <!-- ===== STEP 3 : แบบทดสอบ ===== -->
-  <div class="section" id="sec-quiz">
-    <div class="card-section">
-      <div class="card-header-ttm">
-        <div class="card-header-icon"><i class="fas fa-pencil-alt"></i></div>
-        <div>
-          <div class="card-header-title" id="quiz-title">แบบทดสอบ</div>
-          <div class="card-header-sub"   id="quiz-sub">30 ข้อ — เลือกคำตอบที่ถูกต้อง</div>
-        </div>
-      </div>
-      <div class="card-body-ttm">
-        <div class="retake-banner" id="retake-banner" style="display:none;">
-          <i class="fas fa-redo me-2"></i><span id="retake-txt">ทำเฉพาะข้อที่ตอบผิด</span>
-        </div>
-        <div id="quizArea"><div style="text-align:center;padding:40px;color:var(--ttm-muted);">
-          <span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...
-        </div></div>
-        <div class="text-end mt-4">
-          <button class="btn-ttm-primary" onclick="submitQuiz()" id="btn-submit" style="display:none;">
-            <i class="fas fa-paper-plane me-2"></i><span id="btn-submit-txt">ส่งคำตอบ</span>
-          </button>
-        </div>
-      </div>
+    <div class="text-end mt-2">
+      <button class="btn-p" onclick="goVideo()">
+        <span id="btnInfo">ถัดไป: ดูวิดีโออบรม</span><i class="fas fa-arrow-right"></i>
+      </button>
     </div>
-  </div><!-- /sec-quiz -->
+  </div>
+</div>
+</div>
 
-  <!-- ===== STEP 4 : ผลลัพธ์ ===== -->
-  <div class="section" id="sec-result">
-    <div class="card-section">
-      <div class="card-header-ttm" id="result-header"
-           style="background:linear-gradient(135deg,#1a3a1a,#28a745)">
-        <div class="card-header-icon"><i class="fas fa-trophy"></i></div>
-        <div>
-          <div class="card-header-title" id="result-title">ผลการสอบ</div>
-          <div class="card-header-sub"   id="result-sub">การอบรมข้อกำหนดด้านความปลอดภัย TTM</div>
-        </div>
-      </div>
-      <div class="card-body-ttm" style="text-align:center;">
-        <div class="result-circle pass" id="resultCircle">
-          <div class="result-score" id="resultScore" style="color:#28a745">—</div>
-          <div class="result-total">/30</div>
-        </div>
-        <div style="font-size:22px;font-weight:800;margin-bottom:8px;" id="resultVerdict"></div>
-        <div style="color:var(--ttm-muted);font-size:14px;margin-bottom:24px;" id="resultMsg"></div>
-        <div class="score-breakdown">
-          <div class="score-stat">
-            <div class="score-stat-num" style="color:#28a745" id="res-correct">—</div>
-            <div class="score-stat-lbl" id="res-correct-lbl">ข้อถูก</div>
-          </div>
-          <div class="score-stat">
-            <div class="score-stat-num" style="color:var(--ttm-red)" id="res-wrong">—</div>
-            <div class="score-stat-lbl" id="res-wrong-lbl">ข้อผิด</div>
-          </div>
-          <div class="score-stat">
-            <div class="score-stat-num" style="color:#64748B" id="res-pass-score">—</div>
-            <div class="score-stat-lbl" id="res-pass-lbl">เกณฑ์ผ่าน</div>
-          </div>
-        </div>
-        <!-- PDF & Email section -->
-        <div id="pdfSection" style="display:none;">
-          <!-- Download box -->
-          <div class="pdf-box" style="margin-bottom:16px;" id="dlBox">
-            <i class="fas fa-file-pdf fa-2x" style="color:#16A34A;margin-bottom:10px;"></i>
-            <div style="font-size:15px;font-weight:700;color:#16A34A;margin-bottom:6px;" id="pdf-ready-txt">
-              กระดาษคำตอบพร้อมแล้ว!</div>
-            <div style="font-size:13px;color:#4B5563;margin-bottom:16px;" id="pdf-note-txt">
-              กดดาวน์โหลดเพื่อบันทึกกระดาษคำตอบของคุณ</div>
-            <!-- ✅ ใช้ onclick download จาก base64 — ไม่ต้อง Google login -->
-            <button class="btn-ttm-success" onclick="downloadPdfDirect()">
-              <i class="fas fa-download me-2"></i><span id="pdf-dl-txt">ดาวน์โหลดกระดาษคำตอบ PDF</span>
-            </button>
-          </div>
-          <!-- Email option box -->
-          <div id="emailBox" style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:20px;text-align:center;">
-            <i class="fas fa-envelope" style="font-size:22px;color:#2563EB;margin-bottom:10px;"></i>
-            <div style="font-size:14px;font-weight:700;color:#1E40AF;margin-bottom:4px;" id="email-title-txt">
-              รับกระดาษคำตอบทางอีเมล (ไม่บังคับ)</div>
-            <div style="font-size:12px;color:#3B82F6;margin-bottom:14px;" id="email-sub-txt">
-              กรอกอีเมลเพื่อรับสำเนากระดาษคำตอบ</div>
-            <div style="display:flex;gap:8px;max-width:420px;margin:0 auto;" id="emailInputRow">
-              <input type="email" id="emailInput"
-                style="flex:1;border:1.5px solid #BFDBFE;border-radius:10px;padding:10px 14px;
-                       font-size:14px;font-family:Sarabun,sans-serif;outline:none;
-                       background:#fff;color:#1E293B;"
-                placeholder="example@email.com"
-                onkeydown="if(event.key==='Enter')sendEmail()">
-              <button onclick="sendEmail()" id="emailSendBtn"
-                style="background:linear-gradient(135deg,#2563EB,#1E40AF);border:none;border-radius:10px;
-                       color:#fff;font-size:14px;font-weight:700;padding:10px 18px;cursor:pointer;
-                       white-space:nowrap;font-family:Sarabun,sans-serif;transition:all .2s;"
-                onmouseover="this.style.transform='translateY(-1px)'"
-                onmouseout="this.style.transform='none'">
-                <i class="fas fa-paper-plane me-1"></i><span id="email-send-txt">ส่งอีเมล</span>
-              </button>
-            </div>
-            <!-- Status -->
-            <div id="emailStatus" style="margin-top:10px;font-size:13px;display:none;"></div>
-          </div>
-        </div>
-        <!-- Loading PDF -->
-        <div id="loadingPdf" style="display:none;color:var(--ttm-muted);margin-top:20px;">
-          <span class="spinner-border spinner-border-sm me-2"></span>
-          <span id="loading-pdf-txt">กำลังสร้างกระดาษคำตอบ PDF...</span>
-        </div>
-        <!-- Retake button -->
-        <div id="retakeSection" style="display:none;margin-top:20px;">
-          <button class="btn-ttm-primary" onclick="retakeQuiz()">
-            <i class="fas fa-redo me-2"></i><span id="retake-btn-txt">ทำแบบทดสอบข้อที่ผิดใหม่</span>
-          </button>
-        </div>
-      </div>
+<!-- ─── STEP 2: วิดีโอ ─── -->
+<div class="section" id="sec-video">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fab fa-youtube"></i></div>
+    <div><div class="ch-t" id="vidT">วิดีโอการอบรม</div>
+         <div class="ch-s" id="vidS">ดูวิดีโอให้ครบก่อนทำแบบทดสอบ</div></div></div>
+  <div class="cb">
+    <div class="info-banner" id="vidBanner">
+      <i class="fas fa-info-circle me-1"></i>
+      <span id="vidBannerTxt">ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด</span>
     </div>
-  </div><!-- /sec-result -->
+    <div id="vidTabs" style="display:none;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px"></div>
+    <div class="vid-wrap" id="vidWrap">
+      <iframe id="ytFrame" src="" allowfullscreen
+        allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture"></iframe>
+    </div>
+    <div class="timer-wrap">
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:4px">
+        <span id="timerLbl">⏱ เวลาที่ดูแล้ว</span><span id="timerCD"></span>
+      </div>
+      <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:3px" id="timerNote"></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;margin-top:16px;gap:12px">
+      <div id="unlockBadge" class="unlock-badge" style="display:none">
+        <i class="fas fa-unlock-alt"></i><span id="unlockTxt">ปลดล็อกแล้ว!</span>
+      </div>
+      <button class="btn-p" id="btnQuiz" onclick="goQuiz()" disabled>
+        <i class="fas fa-lock me-1" id="quizIco"></i>
+        <span id="btnQuizTxt">ดูวิดีโอให้ครบก่อน</span>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
 
-</div><!-- /content-wrap -->
+<!-- ─── STEP 3: แบบทดสอบ ─── -->
+<div class="section" id="sec-quiz">
+<div class="card-ttm">
+  <div class="ch"><div class="ch-ico"><i class="fas fa-pencil-alt"></i></div>
+    <div><div class="ch-t" id="quizT">แบบทดสอบ</div>
+         <div class="ch-s" id="quizS">30 ข้อ — เลือกคำตอบที่ถูกต้อง</div></div></div>
+  <div class="cb">
+    <div class="retake-banner" id="retakeBanner"></div>
+    <div id="quizArea"><div style="text-align:center;padding:36px;color:var(--muted)">
+      <span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...</div></div>
+    <div class="text-end mt-3">
+      <button class="btn-p" onclick="doSubmit()" id="btnSubmit" style="display:none">
+        <i class="fas fa-paper-plane me-1"></i><span id="btnSubTxt">ส่งคำตอบ</span>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
 
-<div class="toast-container-ttm" id="toastC"></div>
+<!-- ─── STEP 4: ผลลัพธ์ ─── -->
+<div class="section" id="sec-result">
+<div class="card-ttm">
+  <div class="ch" id="resHdr" style="background:linear-gradient(135deg,#1a3a1a,#22c55e)">
+    <div class="ch-ico"><i class="fas fa-trophy"></i></div>
+    <div><div class="ch-t" id="resT">ผลการสอบ</div>
+         <div class="ch-s">การอบรมข้อกำหนดด้านความปลอดภัย TTM</div></div>
+  </div>
+  <div class="cb" style="text-align:center">
+    <div class="res-circle pass" id="resCircle">
+      <div class="res-score" id="resScore" style="color:#22c55e">—</div>
+      <div style="font-size:12px;color:var(--muted)">/30</div>
+    </div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px" id="resVerdict"></div>
+    <div style="color:var(--muted);font-size:13px;margin-bottom:18px" id="resMsg"></div>
+    <div class="score-grid">
+      <div class="sg"><div class="sg-n" style="color:#22c55e" id="resC">—</div><div class="sg-l" id="resCL">ข้อถูก</div></div>
+      <div class="sg"><div class="sg-n" style="color:var(--red)" id="resW">—</div><div class="sg-l" id="resWL">ข้อผิด</div></div>
+      <div class="sg"><div class="sg-n" style="color:var(--muted)" id="resP">—</div><div class="sg-l" id="resPL">เกณฑ์ผ่าน</div></div>
+    </div>
+    <!-- PDF section -->
+    <div id="pdfArea">
+      <!-- Loading -->
+      <div id="pdfLoading" style="display:none;color:var(--muted);margin-top:16px">
+        <span class="spinner-border spinner-border-sm me-2"></span>
+        <span id="pdfLoadTxt">กำลังสร้างกระดาษคำตอบจาก Template...</span>
+      </div>
+      <!-- Ready -->
+      <div class="pdf-box" id="pdfBox" style="display:none">
+        <i class="fas fa-file-pdf fa-2x" style="color:#16a34a;margin-bottom:10px"></i>
+        <div style="font-size:14px;font-weight:700;color:#16a34a;margin-bottom:5px" id="pdfReadyTxt">กระดาษคำตอบพร้อมแล้ว!</div>
+        <div style="font-size:12px;color:#4B5563;margin-bottom:14px" id="pdfNoteTxt">กดปุ่มด้านล่างเพื่อดาวน์โหลด</div>
+        <button class="btn-g" onclick="downloadPdf()">
+          <i class="fas fa-download me-1"></i><span id="pdfDlTxt">ดาวน์โหลดกระดาษคำตอบ PDF</span>
+        </button>
+      </div>
+      <!-- Error -->
+      <div id="pdfError" style="display:none;color:var(--red);margin-top:14px;font-size:13px"></div>
+    </div>
+    <!-- Retake -->
+    <div id="retakeArea" style="display:none;margin-top:16px">
+      <button class="btn-p" onclick="doRetake()">
+        <i class="fas fa-redo me-1"></i><span id="btnRetakeTxt">ทำข้อที่ผิดใหม่</span>
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+</div><!-- /wrap -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<div class="tc" id="tc"></div>
+
 <script src="ttm-api.js"></script>
 <script>
-// ================================================================
-// ✅ CONFIG — แก้ไขค่าที่นี่
-// ================================================================
+// ════════════════════════════════════════════
+// ✅ CONFIG — แก้ที่นี่
+// ════════════════════════════════════════════
+const VIDEO_UNLOCK_SECONDS = 30; // วินาทีที่ต้องดูวิดีโอ (0 = ไม่บังคับ)
+// ════════════════════════════════════════════
 
-/**
- * VIDEO_UNLOCK_SECONDS
- * จำนวนวินาทีที่ผู้เข้าอบรมต้องดูวิดีโอก่อนที่ปุ่ม "ทำแบบทดสอบ" จะปรากฏ
- *
- * ตัวอย่าง:
- *   const VIDEO_UNLOCK_SECONDS = 60;    // ต้องดู 1 นาที
- *   const VIDEO_UNLOCK_SECONDS = 300;   // ต้องดู 5 นาที
- *   const VIDEO_UNLOCK_SECONDS = 1800;  // ต้องดู 30 นาที
- *   const VIDEO_UNLOCK_SECONDS = 0;     // ไม่บังคับ — แสดงปุ่มทันที
- *
- * หมายเหตุ: ถ้ามีหลายคลิป ตัวนับจะรวมเวลาทุกคลิปเข้าด้วยกัน
- */
-const VIDEO_UNLOCK_SECONDS = 30; // ← แก้ที่นี่
-
-// ================================================================
 // STATE
-// ================================================================
-let currentLang    = 'th';
-let userData       = {};
-let formData       = {};
-let allQuestions   = [];
-let quizQuestions  = [];        // shuffled 30
-let currentAnswers = {};        // { qIndex: '1'|'2'|'3'|'4' }
-let wrongIndices   = [];
-let pdfUrlGlobal      = '';
-let pdfBase64Global   = '';
-let pdfFilenameGlobal = 'AnswerSheet.pdf';
-let pdfFileIdGlobal   = '';     // ✅ Drive File ID สำหรับส่งอีเมล (ไม่ต้องส่ง base64)
-let pdfReadyGlobal    = false;
-let isRetake       = false;
-let score          = 0;
-let passingScore   = 27;
-let videos         = [];
+let lang       = 'th';
+let sess       = {};
+let formData   = {};
+let videos     = [];
+let allQ       = [];
+let quizQ      = [];        // 30 ข้อที่สุ่ม
+let answers    = {};        // { qIdx: '1'|'2'|'3'|'4' }
+let wrongIdx   = [];
+let isRetake   = false;
+let score      = 0;
+let passScore  = 27;
+let pdfBase64  = '';
+let pdfFilename= '';
+let timerEl    = 0;
+let timerTick  = null;
+let unlocked   = false;
 
-// --- Timer state ---
-let timerElapsed   = 0;         // วินาทีที่ผ่านไปทั้งหมด
-let timerInterval  = null;
-let timerUnlocked  = false;
-let videoPlaying   = false;     // iframe กำลังเล่นอยู่หรือไม่
-
-// ================================================================
-// i18n
-// ================================================================
-const T = {
-  th: {
-    logoutTxt:'ออกจากระบบ',
-    'info-title':'ข้อมูลผู้เข้าอบรม','info-sub':'กรุณากรอกข้อมูลให้ครบถ้วนก่อนเริ่มอบรม',
-    'vid-title':'วิดีโอการอบรม','vid-sub':'กรุณาดูวิดีโอให้ครบเวลาก่อนทำแบบทดสอบ',
-    'vid-info-txt':'ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด',
-    'quiz-title':'แบบทดสอบ','quiz-sub':'30 ข้อ — เลือกคำตอบที่ถูกต้อง',
-    'btn-next-info':'ถัดไป: ดูวิดีโออบรม',
-    'btn-to-quiz-txt-locked':'ดูวิดีโอให้ครบก่อน',
-    'btn-to-quiz-txt-unlocked':'เริ่มทำแบบทดสอบได้เลย',
-    'btn-submit-txt':'ส่งคำตอบ',
-    'retake-txt':'ทำเฉพาะข้อที่ตอบผิด',
-    'pdf-ready-txt':'กระดาษคำตอบพร้อมแล้ว!',
-    'pdf-note-txt':'กดดาวน์โหลดเพื่อบันทึกกระดาษคำตอบของคุณ',
-    'pdf-dl-txt':'ดาวน์โหลดกระดาษคำตอบ PDF',
-    'loading-pdf-txt':'กำลังสร้างกระดาษคำตอบ PDF...',
-    'retake-btn-txt':'ทำแบบทดสอบข้อที่ผิดใหม่',
-    'res-correct-lbl':'ข้อถูก','res-wrong-lbl':'ข้อผิด','res-pass-lbl':'เกณฑ์ผ่าน',
-    'email-title-txt':'รับกระดาษคำตอบทางอีเมล (ไม่บังคับ)',
-    'email-sub-txt':'กรอกอีเมลเพื่อรับสำเนากระดาษคำตอบ',
-    'email-send-txt':'ส่งอีเมล',
-    'email-ph':'กรอกอีเมลของคุณ',
-    'email-sending':'กำลังส่ง...',
-    'email-ok':'✅ ส่งอีเมลสำเร็จแล้ว!',
-    'email-err':'❌ ส่งไม่สำเร็จ: ',
-    'email-invalid':'กรุณากรอกอีเมลให้ถูกต้อง',
-    PASS_MSG:'ยินดีด้วย! คุณผ่านการอบรมแล้ว',
-    FAIL_MSG:'คุณยังไม่ผ่านเกณฑ์ กรุณาทำข้อที่ผิดใหม่',
-    PASS_VERDICT:'ผ่าน ✓', FAIL_VERDICT:'ไม่ผ่าน ✗',
-    opts:['ก','ข','ค','ง'], qLabel:'ข้อที่',
-    fillAll:'กรุณาตอบให้ครบทุกข้อ',
-    fillInfo:'กรุณากรอกข้อมูลที่จำเป็นให้ครบ (ชื่อ, อายุ, กรุ๊ปเลือด, โทร, จังหวัด, บริษัท)',
+// ────────── i18n ──────────
+const TX = {
+  th:{
+    topT:'ระบบอบรมข้อกำหนดด้านความปลอดภัย TTM', loTxt:'ออก',
     sl:['ข้อมูล','วิดีโอ','แบบทดสอบ','ผลลัพธ์'],
-    timerLabel:'⏱ เวลาที่ดูแล้ว',
-    timerRemain:'เหลืออีก',
-    timerDone:'ดูครบแล้ว — ปุ่มพร้อมใช้งาน ✓',
-    unlockBadgeTxt:'ปลดล็อกแล้ว — กดปุ่มได้เลย!',
-    noVideos:'ไม่พบวิดีโอ — ระบบปลดล็อกอัตโนมัติ',
-    vidLoading:'กำลังโหลดวิดีโอ...',
-    playHint:'▶ กดเล่นวิดีโอเพื่อเริ่มนับเวลา'
+    infoT:'ข้อมูลผู้เข้าอบรม', infoS:'กรุณากรอกข้อมูลให้ครบถ้วน',
+    vidT:'วิดีโอการอบรม', vidS:'ดูวิดีโอให้ครบก่อนทำแบบทดสอบ',
+    vidBannerTxt:'ระบบนับเวลาการดูวิดีโอ — ปุ่มทำแบบทดสอบจะปรากฏเมื่อดูครบตามเวลาที่กำหนด',
+    quizT:'แบบทดสอบ', quizS:'30 ข้อ — เลือกคำตอบที่ถูกต้อง',
+    resT:'ผลการสอบ',
+    btnInfo:'ถัดไป: ดูวิดีโออบรม', btnQuizLocked:'ดูวิดีโอให้ครบก่อน',
+    btnQuizUnlocked:'เริ่มทำแบบทดสอบ', btnSubTxt:'ส่งคำตอบ',
+    unlockTxt:'ปลดล็อกแล้ว!', timerLbl:'⏱ เวลาที่ดูแล้ว',
+    timerRemain:'เหลืออีก', timerDone:'ดูครบแล้ว ✓',
+    noVideo:'ไม่พบวิดีโอ — ปลดล็อกอัตโนมัติ', playHint:'▶ กดเล่นวิดีโอเพื่อเริ่มนับเวลา',
+    pdfLoadTxt:'กำลังสร้างกระดาษคำตอบจาก Template... (อาจใช้เวลา 20-30 วินาที)',
+    pdfReadyTxt:'กระดาษคำตอบพร้อมแล้ว!', pdfNoteTxt:'กดปุ่มด้านล่างเพื่อดาวน์โหลด',
+    pdfDlTxt:'ดาวน์โหลดกระดาษคำตอบ PDF',
+    PASS:'ผ่าน ✓', FAIL:'ไม่ผ่าน ✗',
+    PASS_MSG:'ยินดีด้วย! คุณผ่านการอบรม',
+    FAIL_MSG:'ยังไม่ผ่านเกณฑ์ กรุณาทำข้อที่ผิดใหม่',
+    resCL:'ข้อถูก', resWL:'ข้อผิด', resPL:'เกณฑ์ผ่าน',
+    btnRetakeTxt:'ทำข้อที่ผิดใหม่',
+    opts:['ก','ข','ค','ง'], qLbl:'ข้อที่',
+    errFill:'กรุณากรอกข้อมูลที่มี * ให้ครบ',
+    errAns:'กรุณาตอบให้ครบทุกข้อ',
+    errSave:'เกิดข้อผิดพลาดในการบันทึก: ',
+    errPdf:'เกิดข้อผิดพลาดสร้าง PDF: ',
+    errNet:'เชื่อมต่อไม่ได้: ',
   },
-  en: {
-    logoutTxt:'Logout',
-    'info-title':'Trainee Information','info-sub':'Please fill in all required fields before starting',
-    'vid-title':'Training Video','vid-sub':'Watch the video for the required duration',
-    'vid-info-txt':'The system tracks your watch time — the quiz button appears after the required duration',
-    'quiz-title':'Quiz','quiz-sub':'30 Questions — Choose the correct answer',
-    'btn-next-info':'Next: Watch Training Video',
-    'btn-to-quiz-txt-locked':'Watch video first',
-    'btn-to-quiz-txt-unlocked':'Start Quiz Now',
-    'btn-submit-txt':'Submit Answers',
-    'retake-txt':'Retake wrong questions only',
-    'pdf-ready-txt':'Answer Sheet Ready!',
-    'pdf-note-txt':'Click download to save your answer sheet',
-    'pdf-dl-txt':'Download Answer Sheet PDF',
-    'loading-pdf-txt':'Generating PDF...',
-    'retake-btn-txt':'Retake wrong questions',
-    'res-correct-lbl':'Correct','res-wrong-lbl':'Wrong','res-pass-lbl':'Pass Score',
-    'email-title-txt':'Receive Answer Sheet by Email (optional)',
-    'email-sub-txt':'Enter your email to receive a copy',
-    'email-send-txt':'Send Email',
-    'email-ph':'Enter your email',
-    'email-sending':'Sending...',
-    'email-ok':'✅ Email sent successfully!',
-    'email-err':'❌ Failed to send: ',
-    'email-invalid':'Please enter a valid email address',
-    PASS_MSG:'Congratulations! You passed the training.',
-    FAIL_MSG:'Not passed. Please retake the wrong questions.',
-    PASS_VERDICT:'PASSED ✓', FAIL_VERDICT:'FAILED ✗',
-    opts:['A','B','C','D'], qLabel:'Q.',
-    fillAll:'Please answer all questions',
-    fillInfo:'Please fill in required fields (Name, Age, Blood Type, Phone, Province, Company)',
+  en:{
+    topT:'TTM Safety Training System', loTxt:'Logout',
     sl:['Info','Video','Quiz','Result'],
-    timerLabel:'⏱ Time watched',
-    timerRemain:'remaining',
-    timerDone:'Complete — button is ready ✓',
-    unlockBadgeTxt:'Unlocked — you may proceed!',
-    noVideos:'No videos found — auto-unlocked',
-    vidLoading:'Loading video...',
-    playHint:'▶ Press play to start the timer'
+    infoT:'Trainee Information', infoS:'Please fill in all required fields',
+    vidT:'Training Video', vidS:'Watch the video before taking the quiz',
+    vidBannerTxt:'System tracks watch time — quiz button appears after required duration',
+    quizT:'Quiz', quizS:'30 Questions — Choose the correct answer',
+    resT:'Exam Result',
+    btnInfo:'Next: Watch Training Video', btnQuizLocked:'Watch video first',
+    btnQuizUnlocked:'Start Quiz', btnSubTxt:'Submit Answers',
+    unlockTxt:'Unlocked!', timerLbl:'⏱ Time watched',
+    timerRemain:'remaining', timerDone:'Complete ✓',
+    noVideo:'No video found — auto-unlocked', playHint:'▶ Press play to start timer',
+    pdfLoadTxt:'Generating answer sheet from template... (may take 20-30 sec)',
+    pdfReadyTxt:'Answer Sheet Ready!', pdfNoteTxt:'Click below to download',
+    pdfDlTxt:'Download Answer Sheet PDF',
+    PASS:'PASSED ✓', FAIL:'FAILED ✗',
+    PASS_MSG:'Congratulations! You passed the training.',
+    FAIL_MSG:'Not passed. Please retake wrong questions.',
+    resCL:'Correct', resWL:'Wrong', resPL:'Pass Score',
+    btnRetakeTxt:'Retake wrong questions',
+    opts:['A','B','C','D'], qLbl:'Q.',
+    errFill:'Please fill in all required fields (*)',
+    errAns:'Please answer all questions',
+    errSave:'Save error: ',
+    errPdf:'PDF error: ',
+    errNet:'Connection error: ',
   }
 };
+function t(k){ return TX[lang][k] || k; }
 
-// ================================================================
-// Language
-// ================================================================
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('ttm_lang', lang);
-  document.getElementById('btnTH').classList.toggle('active', lang==='th');
-  document.getElementById('btnEN').classList.toggle('active', lang==='en');
-  const t = T[lang];
-  ['logoutTxt','info-title','info-sub','vid-title','vid-sub','vid-info-txt',
-   'quiz-title','quiz-sub','btn-next-info','btn-submit-txt','retake-txt',
-   'pdf-ready-txt','pdf-note-txt','pdf-dl-txt','loading-pdf-txt','retake-btn-txt',
-   'res-correct-lbl','res-wrong-lbl','res-pass-lbl','timerLabel',
-   'email-title-txt','email-sub-txt','email-send-txt'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = t[id] || '';
-  });
-  // Steps
-  ['sl-1','sl-2','sl-3','sl-4'].forEach((id,i) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = t.sl[i];
-  });
-  // Quiz btn
-  // อัปเดต placeholder email input
-  const emailInp = document.getElementById('emailInput');
-  if (emailInp) emailInp.placeholder = t['email-ph'] || 'example@email.com';
-
-  if (!timerUnlocked) {
-    const el = document.getElementById('btn-to-quiz-txt');
-    if (el) el.textContent = t['btn-to-quiz-txt-locked'];
+// ────────── setLang ──────────
+function setLang(l) {
+  lang = l; localStorage.setItem('ttm_lang', l);
+  document.getElementById('bTH').classList.toggle('on', l==='th');
+  document.getElementById('bEN').classList.toggle('on', l==='en');
+  const ids = ['topT','loTxt','infoT','infoS','vidT','vidS','vidBannerTxt','quizT','quizS',
+    'btnInfo','btnSubTxt','unlockTxt','timerLbl','pdfLoadTxt','pdfReadyTxt','pdfNoteTxt',
+    'pdfDlTxt','btnRetakeTxt','resCL','resWL','resPL'];
+  ids.forEach(id => { const el=document.getElementById(id); if(el) el.textContent=t(id); });
+  document.getElementById('sl1').textContent = t('sl')[0];
+  document.getElementById('sl2').textContent = t('sl')[1];
+  document.getElementById('sl3').textContent = t('sl')[2];
+  document.getElementById('sl4').textContent = t('sl')[3];
+  if (unlocked) {
+    document.getElementById('btnQuizTxt').textContent = t('btnQuizUnlocked');
+  } else {
+    document.getElementById('btnQuizTxt').textContent = t('btnQuizLocked');
   }
-  // Form labels
-  const lbls = {
-    'lbl-fname': lang==='th'?'ชื่อ-นามสกุล *':'Full Name *',
-    'lbl-fage':  lang==='th'?'อายุ *':'Age *',
-    'lbl-fblood':lang==='th'?'กรุ๊ปเลือด *':'Blood Type *',
-    'lbl-ftel':  lang==='th'?'เบอร์โทรศัพท์ *':'Phone *',
-    'lbl-addr':  lang==='th'?'ที่อยู่':'Address',
-    'lbl-fno':   lang==='th'?'บ้านเลขที่':'House No.',
-    'lbl-fmoo':  lang==='th'?'หมู่':'Moo',
-    'lbl-froad': lang==='th'?'ถนน':'Road',
-    'lbl-fsub':  lang==='th'?'แขวง/ตำบล':'Subdistrict',
-    'lbl-fdist': lang==='th'?'เขต/อำเภอ':'District',
-    'lbl-fcity': lang==='th'?'จังหวัด *':'Province *',
-    'lbl-fpost': lang==='th'?'รหัสไปรษณีย์':'Post Code',
-    'lbl-fcomp': lang==='th'?'สังกัดบริษัท *':'Company *'
-  };
-  Object.entries(lbls).forEach(([id,txt]) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = txt;
-  });
-  if (quizQuestions.length) renderQuiz();
-  updateTimerDisplay();
 }
 
-// ================================================================
-// Steps navigation
-// ================================================================
-function showSection(name) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.getElementById('sec-'+name).classList.add('active');
-  window.scrollTo(0, 0);
-  const map = { info:1, video:2, quiz:3, result:4 };
-  const cur = map[name];
-  [1,2,3,4].forEach(i => {
-    const ic  = document.getElementById('si-'+i);
-    const lbl = document.getElementById('sl-'+i);
-    if (i < cur)       { ic.className='step-icon done';   lbl.className='step-label done'; }
-    else if (i === cur){ ic.className='step-icon active'; lbl.className='step-label active'; }
-    else               { ic.className='step-icon';        lbl.className='step-label'; }
-    if (i < 4) {
-      const conn = document.getElementById('sc-'+i);
-      if (conn) conn.className = 'step-connector' + (i < cur ? ' done' : '');
-    }
+// ────────── Steps ──────────
+function showStep(name) {
+  // ✅ ใช้ class .on แทน inline style — ตรงกับ CSS .section{display:none} และ .section.on{display:block}
+  ['info','video','quiz','result'].forEach(function(s) {
+    var el = document.getElementById('sec-'+s);
+    if (el) el.classList.remove('on');
   });
+  var target = document.getElementById('sec-'+name);
+  if (target) target.classList.add('on');
+  window.scrollTo(0,0);
+
+  var idx = {info:1, video:2, quiz:3, result:4}[name] || 1;
+  for (var i=1;i<=4;i++) {
+    var si=document.getElementById('si'+i), sl=document.getElementById('sl'+i);
+    if (si) si.className = 'si'+(i<idx?' done':i===idx?' on':'');
+    if (sl) sl.className = 'sl'+(i<idx?' done':i===idx?' on':'');
+  }
+  for (var j=1;j<=3;j++) {
+    var sc=document.getElementById('sc'+j);
+    if (sc) sc.className = 'sc'+(j<idx?' done':'');
+  }
 }
 
-// ================================================================
-// STEP 1 → 2
-// ================================================================
-function goToVideo() {
-  const name    = document.getElementById('f-name').value.trim();
-  const age     = document.getElementById('f-age').value.trim();
-  const blood   = document.getElementById('f-blood').value;
-  const tel     = document.getElementById('f-tel').value.trim();
-  const city    = document.getElementById('f-city').value.trim();
-  const company = document.getElementById('f-company').value.trim();
-  if (!name||!age||!blood||!tel||!city||!company) {
-    showToast(T[currentLang].fillInfo, 'error'); return;
-  }
-  formData = {
-    name, age, blood, tel, city, company,
-    noAddress:   document.getElementById('f-no').value.trim(),
-    moo:         document.getElementById('f-moo').value.trim(),
-    road:        document.getElementById('f-road').value.trim(),
-    subdistrict: document.getElementById('f-sub').value.trim(),
-    district:    document.getElementById('f-dist').value.trim(),
-    postCode:    document.getElementById('f-post').value.trim(),
-    username:    userData.username || ''
-  };
-  showSection('video');
+// ────────── Toast ──────────
+function toast(msg, type='success') {
+  const c = document.getElementById('tc');
+  const el = document.createElement('div');
+  el.className = 'toast-i';
+  el.style.borderLeft = '3px solid ' + (type==='error'?'#ef4444':'#22c55e');
+  el.innerHTML = '<i class="fas fa-' + (type==='error'?'exclamation-circle':'check-circle') +
+    '" style="color:'+(type==='error'?'#ef4444':'#22c55e')+'"></i>' + msg;
+  c.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity .3s';
+    setTimeout(()=>el.remove(),300); }, 3500);
+}
+
+// ────────── Step 1 → 2 ──────────
+function goVideo() {
+  const name  = document.getElementById('fName').value.trim();
+  const age   = document.getElementById('fAge').value.trim();
+  const blood = document.getElementById('fBlood').value;
+  const tel   = document.getElementById('fTel').value.trim();
+  const city  = document.getElementById('fCity').value.trim();
+  const comp  = document.getElementById('fComp').value.trim();
+  if (!name||!age||!blood||!tel||!city||!comp) { toast(t('errFill'),'error'); return; }
+  formData = { username:sess.username||'',
+    name,age,blood,tel,city,company:comp,
+    noAddress:document.getElementById('fNo').value.trim(),
+    moo:document.getElementById('fMoo').value.trim(),
+    road:document.getElementById('fRoad').value.trim(),
+    subdistrict:document.getElementById('fSub').value.trim(),
+    district:document.getElementById('fDist').value.trim(),
+    postCode:document.getElementById('fPost').value.trim() };
+  showStep('video');
   loadVideos();
 }
 
-// ================================================================
-// VIDEO + TIMER
-// ================================================================
+// ────────── Video + Timer ──────────
 function loadVideos() {
-  apiGetVideos().then(function(vs) {
-    if (!vs || vs.error) { unlockQuizBtn(); return; }
-    vs.sort((a,b) => a.order - b.order);
+  apiGetVideos().then(vs => {
+    if (!vs || vs.error || !vs.length) { unlockQuiz(); document.getElementById('timerNote').textContent=t('noVideo'); return; }
+    vs.sort((a,b)=>a.order-b.order);
     videos = vs;
-    if (!vs.length) {
-      document.getElementById('ytFrame').src = '';
-      document.getElementById('videoWrap').style.display = 'none';
-      document.getElementById('timerNote').textContent = T[currentLang].noVideos;
-      unlockQuizBtn();
-      return;
-    }
-    buildVideoTabs();
-    loadVideoByIndex(0);
-    if (VIDEO_UNLOCK_SECONDS <= 0) { unlockQuizBtn(); return; }
+    buildVidTabs();
+    loadVid(0);
+    if (VIDEO_UNLOCK_SECONDS <= 0) { unlockQuiz(); return; }
     startTimer();
-  }).catch(function() { unlockQuizBtn(); });
+  }).catch(() => unlockQuiz());
 }
-
-function buildVideoTabs() {
-  const bar = document.getElementById('videoTabsBar');
+function buildVidTabs() {
+  const bar = document.getElementById('vidTabs');
   if (videos.length > 1) {
     bar.style.display = 'flex';
-    bar.innerHTML = videos.map((v,i) =>
-      `<button class="btn-ttm-primary" id="vTab${i}" onclick="loadVideoByIndex(${i})"
-        style="font-size:13px;padding:8px 14px;${i===0?'':'background:rgba(192,57,43,.4);box-shadow:none;'}">
-        ${i+1}. ${v.title}
-      </button>`
+    bar.innerHTML = videos.map((v,i)=>
+      `<button onclick="loadVid(${i})" id="vt${i}"
+        style="background:${i===0?'linear-gradient(135deg,#C0392B,#922B21)':'rgba(192,57,43,.3)'};
+        border:none;border-radius:7px;color:#fff;font-size:12px;font-weight:600;
+        padding:7px 13px;cursor:pointer;font-family:Sarabun,sans-serif">${i+1}. ${v.title}</button>`
     ).join('');
-  } else {
-    bar.style.display = 'none';
   }
 }
-
-function loadVideoByIndex(idx) {
-  videos.forEach((_,i) => {
-    const tab = document.getElementById('vTab'+i);
-    if (tab) tab.style.background = i===idx
-      ? 'linear-gradient(135deg,var(--ttm-red),#922B21)'
-      : 'rgba(192,57,43,.4)';
+function loadVid(idx) {
+  videos.forEach((_,i)=>{
+    const bt=document.getElementById('vt'+i);
+    if(bt) bt.style.background=i===idx?'linear-gradient(135deg,#C0392B,#922B21)':'rgba(192,57,43,.3)';
   });
-  let url = videos[idx].url || '';
-  // เพิ่ม enablejsapi สำหรับ postMessage tracking
-  if (url.includes('youtube.com/embed') || url.includes('youtu.be')) {
-    if (!url.includes('enablejsapi')) {
-      url += (url.includes('?') ? '&' : '?') + 'enablejsapi=1&rel=0&modestbranding=1';
-    }
+  let url = videos[idx].url||'';
+  if (url.includes('youtube') && !url.includes('enablejsapi')) {
+    url += (url.includes('?')?'&':'?') + 'enablejsapi=1&rel=0';
   }
   document.getElementById('ytFrame').src = url;
-  document.getElementById('timerNote').textContent = T[currentLang].playHint;
+  document.getElementById('timerNote').textContent = t('playHint');
 }
-
-// ================================================================
-// ✅ TIMER — นับเวลาโดยใช้ setInterval ไม่พึ่ง YouTube API
-// ================================================================
 function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(function() {
-    // นับทุกวินาทีเมื่อ iframe แสดงอยู่ (ใช้วิธีนับต่อเนื่องเพื่อความเรียบง่าย)
-    // ผู้เขียนโค้ดสามารถเปลี่ยนเป็นนับเฉพาะตอนเล่นได้ โดยผูกกับ videoPlaying
-    timerElapsed++;
-    updateTimerDisplay();
-    if (timerElapsed >= VIDEO_UNLOCK_SECONDS && !timerUnlocked) {
-      unlockQuizBtn();
-    }
+  if (timerTick) clearInterval(timerTick);
+  timerTick = setInterval(() => {
+    timerEl++;
+    const pct = Math.min(100, (timerEl/VIDEO_UNLOCK_SECONDS)*100);
+    document.getElementById('timerBar').style.width = pct+'%';
+    const rem = Math.max(0, VIDEO_UNLOCK_SECONDS - timerEl);
+    const m   = Math.floor(rem/60), s = rem%60;
+    document.getElementById('timerCD').textContent =
+      rem>0 ? t('timerRemain')+' '+(m>0?m+':'+String(s).padStart(2,'0'):s+'s') : '✓';
+    if (timerEl >= VIDEO_UNLOCK_SECONDS) { clearInterval(timerTick); unlockQuiz(); }
   }, 1000);
 }
-
-function updateTimerDisplay() {
-  const t = T[currentLang];
-  const el = document.getElementById('timerLabel');
-  if (el) el.textContent = t.timerLabel;
-
-  if (VIDEO_UNLOCK_SECONDS <= 0) return;
-
-  const pct = Math.min(100, (timerElapsed / VIDEO_UNLOCK_SECONDS) * 100);
-  document.getElementById('timerBarFill').style.width = pct + '%';
-
-  const countEl = document.getElementById('timerCountdown');
-  if (timerUnlocked) {
-    if (countEl) countEl.textContent = '✓';
-    document.getElementById('timerNote').textContent = t.timerDone;
-  } else {
-    const remain = Math.max(0, VIDEO_UNLOCK_SECONDS - timerElapsed);
-    const m = Math.floor(remain / 60);
-    const s = remain % 60;
-    const timeStr = m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `${s}s`;
-    if (countEl) countEl.textContent = `${t.timerRemain} ${timeStr}`;
-  }
-}
-
-function unlockQuizBtn() {
-  if (timerUnlocked) return;
-  timerUnlocked = true;
-  if (timerInterval) clearInterval(timerInterval);
-
-  // อัปเดต progress bar เป็น 100%
-  document.getElementById('timerBarFill').style.width = '100%';
-  document.getElementById('timerNote').textContent = T[currentLang].timerDone;
-  const countEl = document.getElementById('timerCountdown');
-  if (countEl) countEl.textContent = '✓';
-
-  // แสดง badge + เปิดปุ่ม
-  const badge = document.getElementById('unlockBadge');
-  badge.style.display = 'inline-flex';
-  document.getElementById('unlockBadgeTxt').textContent = T[currentLang].unlockBadgeTxt;
-
-  const btn = document.getElementById('btn-to-quiz');
+function unlockQuiz() {
+  if (unlocked) return;
+  unlocked = true;
+  if (timerTick) clearInterval(timerTick);
+  document.getElementById('timerBar').style.width = '100%';
+  document.getElementById('timerNote').textContent = t('timerDone');
+  document.getElementById('timerCD').textContent = '✓';
+  document.getElementById('unlockBadge').style.display = 'inline-flex';
+  document.getElementById('unlockTxt').textContent = t('unlockTxt');
+  const btn = document.getElementById('btnQuiz');
   btn.disabled = false;
-  document.getElementById('quizBtnIcon').className = 'fas fa-unlock me-1';
-  document.getElementById('btn-to-quiz-txt').textContent = T[currentLang]['btn-to-quiz-txt-unlocked'];
+  document.getElementById('quizIco').className = 'fas fa-unlock me-1';
+  document.getElementById('btnQuizTxt').textContent = t('btnQuizUnlocked');
 }
 
-// Listen YouTube postMessage เพื่อเพิ่ม UX (optional)
-window.addEventListener('message', function(e) {
-  try {
-    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-    if (data && data.event === 'onStateChange') {
-      videoPlaying = (data.info === 1); // 1 = playing
-    }
-  } catch(_) {}
-});
-
-// ================================================================
-// STEP 2 → 3
-// ================================================================
-function goToQuiz() {
-  showSection('quiz');
-  if (!quizQuestions.length) buildQuiz();
+// ────────── Step 2 → 3 ──────────
+function goQuiz() {
+  showStep('quiz');
+  if (!allQ.length) buildQuiz();
   else renderQuiz();
 }
-
-// ================================================================
-// QUIZ ENGINE
-// ================================================================
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length-1; i > 0; i--) {
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]] = [a[j],a[i]];
-  }
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
   return a;
 }
-
 function buildQuiz() {
-  document.getElementById('quizArea').innerHTML =
-    '<div style="text-align:center;padding:40px;color:var(--ttm-muted);">' +
-    '<span class="spinner-border spinner-border-sm me-2"></span>กำลังโหลดข้อสอบ...</div>';
-
-  apiGetSettings().then(function(settings) {
-    passingScore = parseInt(settings.passing_score) || 27;
-  });
-
-  apiGetQuestions().then(function(qs) {
-    allQuestions = qs;
-    const pool = qs.length >= 30 ? shuffle(qs).slice(0,30) : shuffle(qs);
-    quizQuestions = pool.map(q => {
-      const opts = [
-        { key:'1', th: q.opt1TH, en: q.opt1EN },
-        { key:'2', th: q.opt2TH, en: q.opt2EN },
-        { key:'3', th: q.opt3TH, en: q.opt3EN },
-        { key:'4', th: q.opt4TH, en: q.opt4EN }
-      ];
-      return { ...q, shuffledOpts: shuffle(opts) };
-    });
-    isRetake = false;
-    wrongIndices = [];
-    currentAnswers = {};
+  apiGetSettings().then(cfg => { passScore = parseInt(cfg.passing_score)||27; });
+  apiGetQuestions().then(qs => {
+    allQ = qs||[];
+    const pool = shuffle(qs).slice(0,30);
+    quizQ = pool.map(q => ({
+      ...q,
+      opts: shuffle([
+        {key:'1',th:q.opt1TH,en:q.opt1EN},
+        {key:'2',th:q.opt2TH,en:q.opt2EN},
+        {key:'3',th:q.opt3TH,en:q.opt3EN},
+        {key:'4',th:q.opt4TH,en:q.opt4EN}
+      ])
+    }));
+    isRetake = false; wrongIdx = []; answers = {};
+    document.getElementById('retakeBanner').style.display='none';
     renderQuiz();
-    document.getElementById('btn-submit').style.display = 'inline-flex';
-    document.getElementById('retake-banner').style.display = 'none';
+    document.getElementById('btnSubmit').style.display='inline-flex';
+  }).catch(e => {
+    document.getElementById('quizArea').innerHTML =
+      '<p style="color:red">โหลดข้อสอบไม่ได้: '+e.message+'</p>';
   });
 }
-
 function renderQuiz() {
-  const t = T[currentLang];
-  const list = isRetake
-    ? quizQuestions.filter((_,i) => wrongIndices.includes(i))
-    : quizQuestions;
-
-  if (!list.length) {
-    document.getElementById('quizArea').innerHTML =
-      '<p style="color:var(--ttm-muted);text-align:center;">ไม่มีข้อสอบ</p>';
-    return;
-  }
-
-  document.getElementById('quizArea').innerHTML = list.map((q, di) => {
-    const realIdx = isRetake ? wrongIndices[di] : di;
-    return `<div class="q-card" id="qcard-${realIdx}">
-      <div class="q-number">${t.qLabel} ${realIdx+1}</div>
-      <div class="q-text">${currentLang==='th'?(q.questionTH||q.questionEN):(q.questionEN||q.questionTH)}</div>
-      ${q.shuffledOpts.map((opt,oi) => {
-        const label  = t.opts[oi];
-        const txt    = currentLang==='th'?(opt.th||opt.en):(opt.en||opt.th);
-        const isSel  = currentAnswers[realIdx] === opt.key;
-        return `<div class="q-option${isSel?' selected':''}"
-                     onclick="selectOpt(${realIdx},'${opt.key}',this)">
-          <div class="opt-badge">${label}</div>
-          <div class="opt-text">${txt}</div>
-        </div>`;
-      }).join('')}
+  const list = isRetake ? quizQ.filter((_,i)=>wrongIdx.includes(i)) : quizQ;
+  if (!list.length) { document.getElementById('quizArea').innerHTML='<p>ไม่มีข้อสอบ</p>'; return; }
+  document.getElementById('quizArea').innerHTML = list.map((q,di) => {
+    const ri = isRetake ? wrongIdx[di] : di;
+    return `<div class="qcard" id="qc${ri}">
+      <div class="qnum">${t('qLbl')} ${ri+1}</div>
+      <div class="qtxt">${lang==='th'?(q.questionTH||q.questionEN):(q.questionEN||q.questionTH)}</div>
+      ${q.opts.map((op,oi)=>`
+        <div class="qopt${answers[ri]===op.key?' sel':''}" onclick="pickOpt(${ri},'${op.key}',this)">
+          <div class="obadge">${t('opts')[oi]}</div>
+          <div class="otxt">${lang==='th'?(op.th||op.en):(op.en||op.th)}</div>
+        </div>`).join('')}
     </div>`;
   }).join('');
 }
-
-function selectOpt(qIdx, key, el) {
-  currentAnswers[qIdx] = key;
-  const card = document.getElementById('qcard-'+qIdx);
-  card.querySelectorAll('.q-option').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
+function pickOpt(ri, key, el) {
+  answers[ri] = key;
+  document.getElementById('qc'+ri).querySelectorAll('.qopt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
 }
 
-function submitQuiz() {
-  const list = isRetake
-    ? quizQuestions.filter((_,i) => wrongIndices.includes(i))
-    : quizQuestions;
+// ────────── Submit ──────────
+function doSubmit() {
+  const list = isRetake ? quizQ.filter((_,i)=>wrongIdx.includes(i)) : quizQ;
+  const unanswered = list.filter((_,di) => !answers[isRetake?wrongIdx[di]:di]);
+  if (unanswered.length) { toast(t('errAns'),'error'); return; }
 
-  // ตรวจว่าตอบครบหรือยัง
-  const unanswered = list.filter((_,di) => {
-    const realIdx = isRetake ? wrongIndices[di] : di;
-    return !currentAnswers[realIdx];
+  // คำนวณคะแนน (เต็ม 30 ข้อ)
+  let correct=0; wrongIdx=[];
+  quizQ.forEach((q,i) => {
+    if (answers[i] === String(q.answer)) correct++;
+    else wrongIdx.push(i);
   });
-  if (unanswered.length) { showToast(T[currentLang].fillAll,'error'); return; }
+  score = correct;
 
-  // คำนวณคะแนน
-  let correct = 0;
-  const newWrong = [];
-  quizQuestions.forEach((q,i) => {
-    if (currentAnswers[i] === String(q.answer)) correct++;
-    else newWrong.push(i);
-  });
-  score        = correct;
-  wrongIndices = newWrong;
+  // แสดงผล step 4
+  showStep('result');
+  const passed = score >= passScore;
+  document.getElementById('resScore').textContent = score;
+  document.getElementById('resScore').style.color = passed?'#22c55e':'#C0392B';
+  document.getElementById('resCircle').className  = 'res-circle '+(passed?'pass':'fail');
+  document.getElementById('resVerdict').textContent = t(passed?'PASS':'FAIL');
+  document.getElementById('resVerdict').style.color = passed?'#22c55e':'#C0392B';
+  document.getElementById('resMsg').textContent      = t(passed?'PASS_MSG':'FAIL_MSG');
+  document.getElementById('resHdr').style.background = passed
+    ? 'linear-gradient(135deg,#1a3a1a,#22c55e)' : 'linear-gradient(135deg,#3a1a1a,#C0392B)';
+  document.getElementById('resC').textContent = correct;
+  document.getElementById('resW').textContent = 30 - correct;
+  document.getElementById('resP').textContent = passScore;
 
-  showSection('result');
-  const t = T[currentLang];
-  document.getElementById('resultScore').textContent   = score;
-  document.getElementById('res-correct').textContent   = correct;
-  document.getElementById('res-wrong').textContent     = 30 - correct;
-  document.getElementById('res-pass-score').textContent= passingScore;
-
+  // ansMap
   const ansMap = {};
-  quizQuestions.forEach((q,i) => { ansMap['ans'+(i+1)] = currentAnswers[i] || ''; });
+  quizQ.forEach((q,i) => { ansMap['ans'+(i+1)] = answers[i]||''; });
 
-  if (score >= passingScore) {
-    document.getElementById('resultCircle').className        = 'result-circle pass';
-    document.getElementById('resultScore').style.color       = '#28a745';
-    document.getElementById('resultVerdict').textContent     = t.PASS_VERDICT;
-    document.getElementById('resultVerdict').style.color     = '#28a745';
-    document.getElementById('resultMsg').textContent         = t.PASS_MSG;
-    document.getElementById('result-header').style.background= 'linear-gradient(135deg,#1a3a1a,#28a745)';
-    document.getElementById('retakeSection').style.display   = 'none';
-    document.getElementById('loadingPdf').style.display      = 'block';
-    document.getElementById('pdfSection').style.display      = 'none';
+  if (passed) {
+    // แสดง loading
+    document.getElementById('pdfLoading').style.display = 'block';
+    document.getElementById('pdfBox').style.display     = 'none';
+    document.getElementById('pdfError').style.display   = 'none';
+    document.getElementById('retakeArea').style.display = 'none';
 
-    // แสดง loading ก่อน
-    document.getElementById('loadingPdf').style.display = 'block';
-    document.getElementById('loadingPdf').innerHTML =
-      '<span class="spinner-border spinner-border-sm me-2"></span>' +
-      (currentLang==='th' ? 'กำลังบันทึกผลสอบ...' : 'Saving results...');
+    var now    = new Date();
+    var day    = String(now.getDate()).padStart(2,'0');
+    var month  = String(now.getMonth()+1).padStart(2,'0');
+    var year   = String(now.getFullYear());
 
-    apiSubmitQuiz(formData, ansMap, score, 30, currentLang).then(function(res) {
-      if (!res || !res.success) {
-        document.getElementById('loadingPdf').textContent =
-          'เกิดข้อผิดพลาด: ' + ((res&&res.message)||'ไม่สามารถบันทึกผลได้');
-        return;
-      }
-      if (!res.passed) {
-        document.getElementById('loadingPdf').style.display = 'none';
+    // STEP 1: บันทึกผลสอบ (เร็ว ~1 วินาที)
+    document.getElementById('pdfLoadTxt').textContent =
+      lang==='th' ? 'กำลังบันทึกผลสอบ...' : 'Saving results...';
+
+    apiSubmitQuiz(formData, ansMap, score, 30, lang).then(function(saveRes) {
+      if (!saveRes || !saveRes.success) {
+        showPdfError('บันทึกผลไม่สำเร็จ: '+((saveRes&&saveRes.message)||''));
         return;
       }
 
-      // ✅ ถ้า GAS สร้าง PDF เสร็จทันที (inline)
-      if (res.pdfReady && res.fileId) {
-        _onPdfReady(res.fileId, res);
-        return;
-      }
+      // STEP 2: สร้าง PDF จาก Slides Template (15-30 วินาที)
+      document.getElementById('pdfLoadTxt').textContent =
+        lang==='th'
+          ? 'กำลังสร้างกระดาษคำตอบจาก Template... (รอประมาณ 20-30 วินาที)'
+          : 'Generating answer sheet from template... (20-30 sec)';
 
-      // ✅ ถ้ายังไม่เสร็จ → poll ทุก 5 วินาที (GAS ยังสร้างอยู่ใน background)
-      document.getElementById('loadingPdf').innerHTML =
-        '<span class="spinner-border spinner-border-sm me-2"></span>' +
-        (currentLang==='th'
-          ? 'กำลังสร้างกระดาษคำตอบจาก Template... (รอสักครู่)'
-          : 'Generating answer sheet from template...');
+      apiGeneratePdf(formData, ansMap, score, lang, day, month, year)
+        .then(function(pdfRes) {
+          document.getElementById('pdfLoading').style.display = 'none';
+          if (pdfRes && pdfRes.success && pdfRes.base64) {
+            // ✅ สำเร็จ — เก็บ base64 แสดงปุ่มดาวน์โหลด
+            pdfBase64   = pdfRes.base64;
+            pdfFilename = pdfRes.filename || 'AnswerSheet.pdf';
+            document.getElementById('pdfBox').style.display = 'block';
+          } else {
+            showPdfError((pdfRes&&pdfRes.error)||'สร้าง PDF ไม่สำเร็จ');
+          }
+        })
+        .catch(function(e) {
+          showPdfError('เกิดข้อผิดพลาด: '+e.message);
+        });
 
-      _pollPdf(res.queueId, res, 0);
-
-    }).catch(function(err) {
-      document.getElementById('loadingPdf').textContent =
-        'เกิดข้อผิดพลาด: ' + (err.message||'');
+    }).catch(function(e) {
+      showPdfError('เกิดข้อผิดพลาด: '+e.message);
     });
+
   } else {
-    document.getElementById('resultCircle').className        = 'result-circle fail';
-    document.getElementById('resultScore').style.color       = 'var(--ttm-red)';
-    document.getElementById('resultVerdict').textContent     = t.FAIL_VERDICT;
-    document.getElementById('resultVerdict').style.color     = 'var(--ttm-red)';
-    document.getElementById('resultMsg').textContent         = t.FAIL_MSG;
-    document.getElementById('result-header').style.background= 'linear-gradient(135deg,#3a1a1a,#C0392B)';
-    document.getElementById('retakeSection').style.display   = 'block';
-    document.getElementById('pdfSection').style.display      = 'none';
-    document.getElementById('loadingPdf').style.display      = 'none';
-    // บันทึกผล FAIL ด้วย
-    apiSubmitQuiz(formData, ansMap, score, 30, currentLang);
+    // FAIL — บันทึกผลด้วย (ไม่สร้าง PDF)
+    apiSubmitQuiz(formData, ansMap, score, 30, lang);
+    document.getElementById('retakeArea').style.display  = 'block';
+    document.getElementById('btnRetakeTxt').textContent  = t('btnRetakeTxt');
+    document.getElementById('pdfLoading').style.display  = 'none';
+    document.getElementById('pdfBox').style.display      = 'none';
   }
 }
 
-function retakeQuiz() {
-  if (!wrongIndices.length) { showToast(currentLang==='th'?'ไม่มีข้อที่ผิด':'No wrong answers!'); return; }
+function showPdfError(msg) {
+  document.getElementById('pdfLoading').style.display = 'none';
+  document.getElementById('pdfError').style.display   = 'block';
+  document.getElementById('pdfError').textContent     = msg;
+}
+
+
+
+// ────────── Download PDF ──────────
+function downloadPdf() {
+  if (!pdfBase64) { toast('PDF not ready','error'); return; }
+  const bytes = atob(pdfBase64);
+  const arr   = new Uint8Array(bytes.length);
+  for (let i=0;i<bytes.length;i++) arr[i]=bytes.charCodeAt(i);
+  const blob = new Blob([arr],{type:'application/pdf'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=pdfFilename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),5000);
+}
+
+// ────────── Retake ──────────
+function doRetake() {
+  if (!wrongIdx.length) return;
   isRetake = true;
-  showSection('quiz');
-  const count = wrongIndices.length;
-  document.getElementById('retake-banner').style.display = 'block';
-  document.getElementById('retake-txt').textContent =
-    currentLang==='th'
-      ? `ทำเฉพาะข้อที่ผิด (${count} ข้อ)`
-      : `Retake ${count} wrong questions`;
-  document.getElementById('btn-submit').style.display = 'inline-flex';
+  showStep('quiz');
+  document.getElementById('retakeBanner').style.display='block';
+  document.getElementById('retakeBanner').textContent =
+    (lang==='th'?'ทำเฉพาะข้อที่ผิด (':'Retaking wrong questions (') + wrongIdx.length + (lang==='th'?' ข้อ)':' questions)');
+  document.getElementById('btnSubmit').style.display='inline-flex';
   renderQuiz();
 }
 
-// ================================================================
-// UTILS
-// ================================================================
-function showToast(msg, type='success') {
-  const c = document.getElementById('toastC');
-  const t = document.createElement('div');
-  t.className = 'toast-ttm';
-  t.style.borderLeft = `3px solid ${type==='error'?'#C0392B':'#28a745'}`;
-  t.innerHTML = `<i class="fas fa-${type==='error'?'exclamation-circle':'check-circle'}"
-    style="color:${type==='error'?'#C0392B':'#28a745'}"></i>${msg}`;
-  c.appendChild(t);
-  setTimeout(() => {
-    t.style.opacity='0'; t.style.transform='translateX(40px)';
-    t.style.transition='all .3s';
-    setTimeout(() => t.remove(), 300);
-  }, 3500);
+// ────────── Logout ──────────
+async function doLogout() {
+  try { await apiLogout(); } catch(_) {}
+  window.location.href = 'index.html';
 }
 
-// ================================================================
-// PDF POLLING — ถามสถานะซ้ำทุก 5 วินาที จนกว่า GAS จะสร้างเสร็จ
-// ================================================================
-function _pollPdf(queueId, submitRes, attempt) {
-  const MAX_ATTEMPTS = 24; // 24 × 5 = 120 วินาที
-  if (attempt >= MAX_ATTEMPTS) {
-    // timeout → fallback jsPDF
-    _useFallbackPdf(submitRes, submitRes.answers||{}, submitRes.score||0,
-      currentLang==='th' ? 'หมดเวลา — ใช้ PDF แบบสำรองแทน' : 'Timeout — using fallback PDF');
-    return;
-  }
-  setTimeout(function() {
-    apiPollPdf(queueId).then(function(poll) {
-      if (poll && poll.status === 'done' && poll.fileId) {
-        _onPdfReady(poll.fileId, submitRes);
-      } else if (poll && poll.status === 'error') {
-        _useFallbackPdf(submitRes, submitRes.answers||{}, submitRes.score||0,
-          'GAS error: ' + (poll.error||'unknown'));
-      } else {
-        // ยังรอ — poll ต่อ
-        _pollPdf(queueId, submitRes, attempt+1);
-      }
-    }).catch(function() {
-      _pollPdf(queueId, submitRes, attempt+1);
-    });
-  }, 5000);
-}
-
-/** เมื่อ PDF พร้อม — เก็บ fileId และแสดง UI */
-function _onPdfReady(fileId, submitRes) {
-  pdfFileIdGlobal   = fileId;
-  pdfBase64Global   = '';   // ไม่มี base64 — ใช้ fileId download แทน
-  pdfFilenameGlobal = 'AnswerSheet.pdf';
-  pdfReadyGlobal    = true;
-  document.getElementById('loadingPdf').style.display = 'none';
-  document.getElementById('pdfSection').style.display = 'block';
-  renderPdfSection();
-  showToast(currentLang==='th'
-    ? '✅ กระดาษคำตอบพร้อมแล้ว!'
-    : '✅ Answer sheet is ready!', 'success');
-}
-
-// ================================================================
-// FALLBACK PDF — ใช้ jsPDF เมื่อ Slides template ไม่พร้อม
-// แสดง reason ออกหน้าจอให้ผู้ดูแลระบบแก้ไขได้
-// ================================================================
-function _useFallbackPdf(serverRes, ansMap, score, reason) {
-  console.warn('[TTM PDF] Using fallback jsPDF. Reason:', reason);
-  // แสดง reason ใน toast (เห็นได้โดยไม่ต้องเปิด Console)
-  showToast('⚠️ ' + reason, 'error');
-  try {
-    const fb = buildPdfInBrowser(serverRes, ansMap, score, currentLang);
-    pdfBase64Global   = fb.base64;
-    pdfFilenameGlobal = fb.filename;
-    pdfFileIdGlobal   = '';       // ไม่มี fileId → ส่งอีเมลด้วย base64 แทน
-    pdfReadyGlobal    = true;
-    document.getElementById('loadingPdf').style.display = 'none';
-    document.getElementById('pdfSection').style.display = 'block';
-    renderPdfSection();
-  } catch(e) {
-    document.getElementById('loadingPdf').textContent = 'สร้าง PDF ไม่สำเร็จ: ' + e.message;
-  }
-}
-
-// ================================================================
-// BUILD PDF IN BROWSER ด้วย jsPDF — ไม่ต้องพึ่ง Google Drive/Slides เลย
-// ================================================================
-function buildPdfInBrowser(serverRes, ansMap, score, lang) {
-  // jsPDF global
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-  const ud   = serverRes.userData || {};
-  const day  = serverRes.day   || '';
-  const mon  = serverRes.month || '';
-  const yr   = serverRes.year  || '';
-  const opts = lang === 'en'
-    ? { '1':'A', '2':'B', '3':'C', '4':'D' }
-    : { '1':'ก', '2':'ข', '3':'ค', '4':'ง' };
-
-  // ---- ฟังก์ชันช่วยวาด Thai text (ใช้ built-in helvetica — ASCII only) ----
-  // สำหรับข้อความภาษาไทยที่อาจมีปัญหา font ใช้ transliteration หรือ fallback
-  function safeText(txt) {
-    // jsPDF built-in ไม่รองรับ Thai unicode → แสดงเป็น Latin fallback
-    // ถ้าต้องการ Thai font ให้เพิ่ม font ตาม docs: doc.addFont(...)
-    return String(txt || '');
-  }
-
-  // ---- Header ----
-  doc.setFillColor(26, 26, 46);
-  doc.rect(0, 0, 210, 28, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(14); doc.setFont('helvetica', 'bold');
-  doc.text('TTM Safety Training - Answer Sheet', 105, 12, { align: 'center' });
-  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
-  doc.text('Training Safety Requirements for Contractors', 105, 20, { align: 'center' });
-
-  // ---- Date ----
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-  doc.text('Date: ' + day + '/' + mon + '/' + yr, 160, 34);
-
-  // ---- Personal Info Box ----
-  doc.setFillColor(245, 246, 250);
-  doc.roundedRect(10, 32, 190, 48, 3, 3, 'F');
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-  doc.setTextColor(100, 116, 139);
-  doc.text('TRAINEE INFORMATION', 14, 40);
-
-  doc.setFont('helvetica', 'normal'); doc.setTextColor(30, 41, 59);
-  const info = [
-    ['Name / ชื่อ-สกุล:', safeText(ud.name)],
-    ['Age / อายุ:', safeText(ud.age) + '  |  Blood / กรุ๊ปเลือด: ' + safeText(ud.blood)],
-    ['Company / บริษัท:', safeText(ud.company)],
-    ['Tel / โทร:', safeText(ud.tel)],
-    ['Address / ที่อยู่:', [ud.noAddress, ud.road, ud.subdistrict, ud.district, ud.city, ud.postCode].filter(Boolean).join(' ')],
-  ];
-  let iy = 48;
-  info.forEach(([label, val]) => {
-    doc.setFont('helvetica', 'bold'); doc.text(label, 14, iy);
-    doc.setFont('helvetica', 'normal'); doc.text(safeText(val).substring(0, 80), 58, iy);
-    iy += 7;
-  });
-
-  // ---- Score Box ----
-  const passed = score >= (serverRes.passingScore || 27);
-  doc.setFillColor(passed ? 240 : 254, passed ? 253 : 226, passed ? 244 : 226);
-  doc.roundedRect(10, 83, 190, 14, 3, 3, 'F');
-  doc.setFontSize(12); doc.setFont('helvetica', 'bold');
-  doc.setTextColor(passed ? 22 : 192, passed ? 163 : 57, passed ? 74 : 43);
-  doc.text('Score: ' + score + '/30    Status: ' + (passed ? 'PASS' : 'FAIL') +
-           '    Pass Score: ' + (serverRes.passingScore || 27), 105, 92, { align: 'center' });
-
-  // ---- Answer Grid ----
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(9); doc.setFont('helvetica', 'bold');
-  doc.text('ANSWER SHEET', 14, 107);
-
-  const cols   = 5;   // คอลัมน์
-  const rows   = 6;   // แถว (5 cols × 6 rows = 30 ข้อ)
-  const cellW  = 36;
-  const cellH  = 10;
-  const startX = 12;
-  const startY = 112;
-
-  for (let i = 0; i < 30; i++) {
-    const col  = i % cols;
-    const row  = Math.floor(i / cols);
-    const x    = startX + col * cellW;
-    const y    = startY + row * cellH;
-    const ans  = opts[ansMap['ans' + (i+1)] || ''] || '-';
-
-    // กล่องคำตอบ
-    doc.setFillColor(col % 2 === 0 ? 248 : 255, 248, 255);
-    doc.rect(x, y, cellW - 1, cellH - 1, 'F');
-    doc.setDrawColor(200, 200, 220);
-    doc.rect(x, y, cellW - 1, cellH - 1, 'S');
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(100, 116, 139);
-    doc.text('Q' + (i + 1), x + 2, y + 6);
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(30, 41, 59);
-    doc.text(safeText(ans), x + 22, y + 7);
-  }
-
-  // ---- Footer ----
-  const footY = startY + rows * cellH + 10;
-  doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(150, 150, 150);
-  doc.text('Generated: ' + day + '/' + mon + '/' + yr + ' | TTM Safety Training System', 105, footY, { align: 'center' });
-  doc.setDrawColor(192, 57, 43);
-  doc.line(10, footY + 3, 200, footY + 3);
-
-  // ---- Export ----
-  const base64  = doc.output('datauristring').split(',')[1];
-  const fname   = 'AnswerSheet_' + safeText(ud.name).replace(/[^a-zA-Z0-9ก-๙]/g,'_') + '_' + day + mon + yr + '.pdf';
-  return { base64, filename: fname, dataUri: doc.output('datauristring') };
-}
-
-// ================================================================
-// PDF DIRECT DOWNLOAD (base64 → Blob → save) — ไม่ต้อง Google login
-// ================================================================
-function downloadPdfDirect() {
-  if (!pdfBase64Global && !pdfFileIdGlobal) {
-    showToast(currentLang==='th' ? 'PDF ยังไม่พร้อม' : 'PDF not ready', 'error');
-    return;
-  }
-  if (pdfBase64Global) {
-    // Fallback jsPDF → download จาก base64
-    try {
-      const byteChars = atob(pdfBase64Global);
-      const byteArr   = new Uint8Array(byteChars.length);
-      for (let i=0;i<byteChars.length;i++) byteArr[i]=byteChars.charCodeAt(i);
-      const blob = new Blob([byteArr],{type:'application/pdf'});
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      a.href=url; a.download=pdfFilenameGlobal||'AnswerSheet.pdf';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
-    } catch(e) { showToast('Download error: '+e.message,'error'); }
-  } else {
-    // Template PDF — เปิด Drive link (share ANYONE_WITH_LINK ไม่ต้อง login)
-    const url = 'https://drive.google.com/uc?export=download&id=' + pdfFileIdGlobal;
-    window.open(url, '_blank');
-  }
-}
-
-/** render pdfSection หลังได้รับ base64 */
-function renderPdfSection() {
-  // ไม่ต้องทำอะไรเพิ่ม — HTML ถูก render แล้ว เพียงแค่ show section
-  // อัปเดต i18n ใน section นี้
-  const t = T[currentLang];
-  ['pdf-ready-txt','pdf-note-txt','pdf-dl-txt','email-title-txt','email-sub-txt','email-send-txt'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el && t[id]) el.textContent = t[id];
-  });
-}
-
-// ================================================================
-// SEND EMAIL
-// ================================================================
-function sendEmail() {
-  const email = (document.getElementById('emailInput').value || '').trim();
-  const t = T[currentLang];
-  if (!email || !email.includes('@') || !email.includes('.')) {
-    showEmailStatus(t['email-invalid'], 'error'); return;
-  }
-  if (!pdfBase64Global && !pdfFileIdGlobal) { showEmailStatus('PDF not ready', 'error'); return; }
-
-  const btn = document.getElementById('emailSendBtn');
-  btn.disabled = true;
-  document.getElementById('email-send-txt').textContent = t['email-sending'];
-  showEmailStatus('', '');
-
-  if (!pdfFileIdGlobal) {
-    // fallback PDF ไม่มี fileId — แจ้งให้ดาวน์โหลดแทน
-    showEmailStatus(currentLang==='th'
-      ? '⚠️ กรุณาดาวน์โหลด PDF แล้วส่งเองทางอีเมล (Template PDF ยังไม่พร้อม)'
-      : '⚠️ Please download PDF and email it manually (template PDF not ready)', 'error');
-    btn.disabled = false;
-    document.getElementById('email-send-txt').textContent = t['email-send-txt'];
-    return;
-  }
-  apiSendEmail(email, pdfFileIdGlobal, formData.name||'', score, currentLang).then(function(res) {
-    btn.disabled = false;
-    document.getElementById('email-send-txt').textContent = t['email-send-txt'];
-    if (res && res.success) {
-      showEmailStatus(t['email-ok'], 'success');
-      document.getElementById('emailInputRow').style.display = 'none';
-    } else {
-      showEmailStatus((t['email-err']||'Error: ') + ((res&&res.message)||''), 'error');
-    }
-  }).catch(function(e) {
-    btn.disabled = false;
-    document.getElementById('email-send-txt').textContent = t['email-send-txt'];
-    showEmailStatus((t['email-err']||'Error: ') + (e.message||''), 'error');
-  });
-}
-
-function showEmailStatus(msg, type) {
-  const el = document.getElementById('emailStatus');
-  if (!msg) { el.style.display='none'; return; }
-  el.style.display = 'block';
-  el.style.color   = type === 'success' ? '#16A34A' : '#DC2626';
-  el.textContent   = msg;
-}
-
-function doLogout() {
-  apiLogout().finally(function() {
-    window.location.href = 'index.html';
-  });
-}
-
-// ================================================================
-// INIT
-// ================================================================
-window.addEventListener('load', function() {
-  // ✅ ใช้ key 'ttm_session' ตรงกับ Index.html
-  const sess = getSession();
-  if (sess && sess.token) { userData = sess; }
-  setLang(userData.lang || localStorage.getItem('ttm_lang') || 'th');
+// ────────── Init ──────────
+window.addEventListener('load', () => {
+  sess = getSession() || {};
+  if (!sess.token) { window.location.href='index.html'; return; }
+  setLang(sess.lang || localStorage.getItem('ttm_lang') || 'th');
 });
 </script>
 </body>
